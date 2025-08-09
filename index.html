@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>PRAISEBOOK - Tela Inicial</title>
-  <link rel="manifest" href="/static/manifest.json">
+  <link rel="manifest" href="/static/manifest.json" />
   <style>
     /* Reset simples */
     * {
@@ -85,19 +85,19 @@
   <header>PRAISEBOOK</header>
 
   <main>
-    <button onclick="window.location.href='/Coletanea_trad/2'">Coletânea</button>
-    <button onclick="window.location.href='/Avul/3'">Avulsos</button>
+    <button type="button" onclick="window.location.href='Coletanea_trad_2.html'">Coletânea</button>
+    <button type="button" onclick="window.location.href='Avul_3.html'">Avulsos</button>
   </main>
 
   <script>
-    // Registra o Service Worker para funcionar offline
+    // Registrar o Service Worker
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/static/service-worker.js')
         .then(() => console.log("✅ Service Worker registrado"))
         .catch(err => console.error("❌ Erro no SW:", err));
     }
 
-    // Verifica se existe atualização disponível no servidor
+    // Função para checar atualizações do app
     async function checarAtualizacoes() {
       try {
         const res = await fetch('/atualizacoes');
@@ -107,19 +107,20 @@
         if (dados.versao > versaoLocal) {
           console.log("📥 Nova versão disponível, atualizando...");
           localStorage.setItem('versaoApp', dados.versao);
-          window.location.reload(true);
+          window.location.reload(); // recarrega a página
         }
-      } catch (e) {
+      } catch {
         console.warn("Sem conexão para verificar atualização");
       }
     }
 
-    // Checa atualizações a cada 30 segundos quando online
+    // Checar atualizações a cada 30 segundos, se online
     if (navigator.onLine) {
       checarAtualizacoes();
       setInterval(checarAtualizacoes, 30000);
     }
   </script>
-
+  
+  <script src="./script.js"></script>
 </body>
 </html>
