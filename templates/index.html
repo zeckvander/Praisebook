@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PRAISEBOOK - Tela Inicial</title>
+  <link rel="manifest" href="/static/manifest.json">
+  <style>
+    /* Reset simples */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f5f5f7;
+      color: #222;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      gap: 40px;
+    }
+
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background: #a66;
+      color: white;
+      font-weight: 700;
+      font-size: 1.8rem;
+      padding: 18px 0;
+      text-align: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+      letter-spacing: 2px;
+      user-select: none;
+      z-index: 10;
+    }
+
+    main {
+      margin-top: 70px; /* espaço para o header fixo */
+      display: flex;
+      gap: 30px;
+      flex-wrap: wrap;
+      justify-content: center;
+      width: 100%;
+      max-width: 420px;
+    }
+
+    button {
+      flex: 1 1 180px;
+      padding: 20px 0;
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: white;
+      background-color: #a66;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 6px 12px rgba(166, 102, 102, 0.4);
+      transition: background-color 0.3s, box-shadow 0.3s, transform 0.2s;
+      user-select: none;
+    }
+
+    button:hover {
+      background-color: #8a5151;
+      box-shadow: 0 8px 16px rgba(138, 81, 81, 0.6);
+      transform: translateY(-3px);
+    }
+
+    button:active {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(138, 81, 81, 0.5);
+    }
+  </style>
+</head>
+<body>
+
+  <header>PRAISEBOOK</header>
+
+  <main>
+    <button onclick="window.location.href='/Coletanea_trad/2'">Coletânea</button>
+    <button onclick="window.location.href='/Avul/3'">Avulsos</button>
+  </main>
+
+  <script>
+    // Registra o Service Worker para funcionar offline
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/static/service-worker.js')
+        .then(() => console.log("✅ Service Worker registrado"))
+        .catch(err => console.error("❌ Erro no SW:", err));
+    }
+
+    // Verifica se existe atualização disponível no servidor
+    async function checarAtualizacoes() {
+      try {
+        const res = await fetch('/atualizacoes');
+        if (!res.ok) return;
+        const dados = await res.json();
+        const versaoLocal = localStorage.getItem('versaoApp') || '0';
+        if (dados.versao > versaoLocal) {
+          console.log("📥 Nova versão disponível, atualizando...");
+          localStorage.setItem('versaoApp', dados.versao);
+          window.location.reload(true);
+        }
+      } catch (e) {
+        console.warn("Sem conexão para verificar atualização");
+      }
+    }
+
+    // Checa atualizações a cada 30 segundos quando online
+    if (navigator.onLine) {
+      checarAtualizacoes();
+      setInterval(checarAtualizacoes, 30000);
+    }
+  </script>
+
+</body>
+</html>
