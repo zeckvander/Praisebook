@@ -363,11 +363,11 @@ Na Glória de Cristo viver
 (CORO)
    <span data-cifra="Am">Am</span>  <span data-cifra="D">D</span>      <span data-cifra="G">G</span>  <span data-cifra="C">C</span>
 Maranata, Maranata
-  <span data-cifra="F#°">F#°</span>          <span data-cifra="B7">B7</span>      <span data-cifra="Em">Em</span>  <span data-cifra="E">E</span>
+  <span data-cifra="F#dim">F#dim</span>          <span data-cifra="B7">B7</span>      <span data-cifra="Em">Em</span>  <span data-cifra="E">E</span>
 Em breve o Senhor voltará
    <span data-cifra="Am">Am</span>  <span data-cifra="D">D</span>      <span data-cifra="G">G</span>  <span data-cifra="C">C</span>
 Maranata, Maranata
-   <span data-cifra="F#°">F#°</span>       <span data-cifra="B7">B7</span>       <span data-cifra="Em">Em</span>   <span data-cifra="Am">Am</span>   <span data-cifra="Em">Em</span>
+   <span data-cifra="F#dim">F#dim</span>       <span data-cifra="B7">B7</span>       <span data-cifra="Em">Em</span>   <span data-cifra="Am">Am</span>   <span data-cifra="Em">Em</span>
 Ele mesmo virá nos buscar
 
   <span data-cifra="Em">Em</span>                  <span data-cifra="C">C</span>
@@ -434,7 +434,7 @@ O sangue de Jesus tem poder
 O sangue de Jesus tem poder
   <span data-cifra="D">D</span>                    <span data-cifra="G">G</span>
 O sangue de Jesus, o sangue de Jesus,
-  <span data-cifra="D">D</span>                  <span data-cifra="G">G</span>
+  <span data-cifra="D">D">D</span>                  <span data-cifra="G">G</span>
 O sangue de Jesus tem poder
 
   <span data-cifra="G">G</span>                        <span data-cifra="C">C</span>
@@ -454,7 +454,7 @@ Clamo a ti,ó meu Senhor,
 Clamo a ti, meu Salvador,
   <span data-cifra="Dm">Dm</span>        <span data-cifra="F">F</span>        <span data-cifra="C">C</span>
 Pelo teu sangue, que é vida,
-  <span data-cifra="G">G</span>           <span data-cifra="Am">Am</span>
+  <span data-cifra="G">G">G</span>           <span data-cifra="Am">Am</span>
 Ó bendito, vem me libertar.
 
   <span data-cifra="Am">Am</span>       <span data-cifra="G">G</span>      <span data-cifra="Am">Am</span>
@@ -607,7 +607,8 @@ Seja sobre nós a Tua graça`
     function mudarTom(direcao) {
         const notaPrincipalSpan = document.getElementById('nota-principal');
         const cifraSpans = document.querySelectorAll('#modalCifra [data-cifra]');
-        const tomOriginal = cifras[document.getElementById('tituloCifra').textContent].tomOriginal;
+        const tituloMusica = document.getElementById('tituloCifra').textContent;
+        const tomOriginal = cifras[tituloMusica].tomOriginal;
 
         const notaAtual = notaPrincipalSpan.textContent.trim();
         const indiceAtual = notasMusicais.indexOf(normalizarNota(notaAtual));
