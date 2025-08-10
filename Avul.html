@@ -342,7 +342,6 @@ Na glória onde Jesus está.`,
         tituloCifra.textContent = titulo;
         conteudoCifra.innerHTML = cifraHTML;
 
-        // Encontra a nota base original para exibir no botão
         const match = cifraHTML.match(/data-cifra="([A-G][#°\d]?)".*?\s/);
         const notaBaseOriginal = match ? match[1].replace(/°\d/, '') : 'G';
 
