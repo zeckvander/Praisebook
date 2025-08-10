@@ -18,16 +18,9 @@
       background: #a66;
       padding: 10px;
       color: white;
-      position: relative;
     }
-    .search-bar {
-      flex: 1;
-    }
-    .search-bar input {
-      width: 100%;
-      padding: 8px;
-      border-radius: 6px;
-      border: none;
+    .top-bar img {
+      height: 40px;
     }
     .cookie-button {
       background: transparent;
@@ -56,9 +49,7 @@
 <body>
   <!-- Barra superior -->
   <div class="top-bar">
-    <div class="search-bar">
-      <input id="search-input" type="text" placeholder="Qual hino procura?" />
-    </div>
+    <img src="logo.png" alt="Logo Praisebook">
     <button class="cookie-button" title="Limpar cache e cookies" onclick="clearCookiesAndCache()">🍪</button>
   </div>
 
@@ -85,9 +76,8 @@
         });
       }
 
-      // Recarregar sem a barra de pesquisa
-      document.getElementById('search-input').remove();
-      setTimeout(() => location.reload(), 300);
+      // Recarregar página
+      location.reload();
     }
   </script>
 </body>
