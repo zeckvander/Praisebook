@@ -1,7 +1,5 @@
-const CACHE_NAME = "Praisebook-v1";
+const CACHE_NAME = "Praisebook-v2";
 const URLS_TO_CACHE = [
-  "/",
-  "/index.html",
   "/offline.html",
   "/manifest.json",
   "/logo.png",
@@ -9,6 +7,7 @@ const URLS_TO_CACHE = [
   "/script.js"
 ];
 
+// Instalação - cacheia apenas arquivos essenciais, não o index.html
 self.addEventListener("install", event => {
     event.waitUntil(
         caches.open(CACHE_NAME).then(cache => {
@@ -18,15 +17,21 @@ self.addEventListener("install", event => {
     );
 });
 
+// Fetch - tenta rede primeiro, depois cache, e offline.html se não achar
 self.addEventListener("fetch", event => {
     event.respondWith(
-        fetch(event.request).catch(() => {
-            return caches.match(event.request)
-                .then(response => response || caches.match("/offline"));
-        })
+        fetch(event.request)
+            .then(response => {
+                return response;
+            })
+            .catch(() => {
+                return caches.match(event.request)
+                    .then(resp => resp || caches.match("/offline.html"));
+            })
     );
 });
 
+// Ativação - limpa caches antigos
 self.addEventListener("activate", event => {
     event.waitUntil(
         caches.keys().then(keys => {
