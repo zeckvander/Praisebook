@@ -643,8 +643,11 @@ Seja sobre nós a Tua graça`
         }
 
         const tomOriginal = musica.tomOriginal;
-
         const notaAtual = notaPrincipalSpan.textContent.trim();
+        
+        // Extrai a nota base do tom original (ex: 'Dm' -> 'D')
+        const notaBaseOriginal = tomOriginal.replace(/[mb#].*/, ''); 
+
         const indiceAtual = notasMusicais.indexOf(normalizarNota(notaAtual));
 
         if (indiceAtual === -1) {
@@ -656,7 +659,8 @@ Seja sobre nós a Tua graça`
         const novaNota = notasMusicais[novoIndice];
         notaPrincipalSpan.textContent = novaNota;
 
-        const diferencaSemitons = notasMusicais.indexOf(novaNota) - notasMusicais.indexOf(normalizarNota(tomOriginal));
+        // Calcula a diferença de semitons usando apenas as notas base
+        const diferencaSemitons = notasMusicais.indexOf(novaNota) - notasMusicais.indexOf(normalizarNota(notaBaseOriginal));
 
         cifraSpans.forEach(elemento => {
             const cifraOriginal = elemento.getAttribute('data-cifra');
