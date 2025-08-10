@@ -225,12 +225,28 @@
         'Cb': 'B', 'E#': 'F', 'B#': 'C'
     };
 
+    // Novo objeto para mapear sustenidos para bemóis
+    const sharpsToFlats = {
+        'C#': 'Db', 'D#': 'Eb', 'F#': 'Gb', 'G#': 'Ab', 'A#': 'Bb'
+    };
+
     let tomAtual = '';
 
     function normalizarNota(nota) {
         return equivalentes[nota] || nota;
     }
 
+    // Nova função para aplicar as regras de notação final
+    function aplicarRegras(nota) {
+      const regrasFinais = {
+        'E#': 'F',
+        'B#': 'C',
+        'Fb': 'E',
+        'Cb': 'B'
+      };
+      return regrasFinais[nota] || nota;
+    }
+    
     function transporNota(notaComSufixo, semitons) {
       const match = notaComSufixo.match(/^([A-G])(#|b)?(.*)/i);
       if (!match) return notaComSufixo;
@@ -243,14 +259,17 @@
 
       indexBase = (indexBase + semitons + notasMusicais.length) % notasMusicais.length;
       let novaNotaBase = notasMusicais[indexBase];
-
-      // Verifica se a nota original era um bemol e, se sim, aplica a notação de bemol na nova nota
+      
+      // Tenta manter a notação de bemol se a nota original tinha um
       if (acidente === 'b') {
-        const bemolEquivalente = Object.keys(equivalentes).find(key => equivalentes[key] === novaNotaBase);
-        if (bemolEquivalente) {
-          novaNotaBase = bemolEquivalente;
-        }
+          const bemolEquivalente = sharpsToFlats[novaNotaBase];
+          if (bemolEquivalente) {
+              novaNotaBase = bemolEquivalente;
+          }
       }
+
+      // Aplica as regras de conversão enarmônica solicitadas pelo usuário
+      novaNotaBase = aplicarRegras(novaNotaBase);
 
       return novaNotaBase + sufixo;
     }
@@ -296,40 +315,23 @@ Caminha na doce esperança,
 Da Vida em eterna bonança,
 Na glória onde Jesus está.`,
 
-      "01 - O Sangue de Jesus Tem Poder": {
-        tomOriginal: 'Dm',
-        html: `  <span data-cifra="Dm">Dm</span>             <span data-cifra="Bb">Bb</span>
-O sangue de Jesus tem poder
- <span data-cifra="A">A</span>                 <span data-cifra="Gm">Gm</span>  <span data-cifra="C7">C7</span>
+      "01 - O Sangue de Jesus Tem Poder": `O sangue de Jesus tem poder
 Poder que a mim pode valer
-  <span data-cifra="Dm">Dm</span>              <span data-cifra="D7">D7</span>     <span data-cifra="Gm">Gm</span>
-Se comunhão não posso eu sentir, Senhor
- <span data-cifra="C">C</span>                  <span data-cifra="A7">A7</span>  <span data-cifra="Dm">Dm</span>
+Se comunhão não posso eu sentir, senhor
 Derrama do teu sangue remidor
 
 (CORO)
-<span data-cifra="Dm">Dm</span>         <span data-cifra="Bb">Bb</span>           <span data-cifra="Dm">Dm</span>
 Derrama do teu sangue sobre mim
-<span data-cifra="A">A</span>  <span data-cifra="Dm">Dm</span>  <span data-cifra="A7">A7</span>
-Ó Senhor
-<span data-cifra="Dm">Dm</span>         <span data-cifra="Bb">Bb</span>           <span data-cifra="Dm">Dm</span>
+Ó senhor
 Derrama do teu sangue sobre mim
-<span data-cifra="A">A</span>  <span data-cifra="Dm">Dm</span>  <span data-cifra="A7">A7</span>
-Ó Senhor
-  <span data-cifra="Dm">Dm</span>           <span data-cifra="D7">D7</span>         <span data-cifra="Bb">Bb</span>
+Ó senhor
 Sei que estás aqui e isto quero eu sentir
- <span data-cifra="C">C</span>                   <span data-cifra="Dm">Dm</span>
 Derrama do teu sangue sobre mim
 
- <span data-cifra="Dm">Dm</span>                   <span data-cifra="Bb">Bb</span>
-Em tua presença estou, Senhor
-  <span data-cifra="A">A</span>                 <span data-cifra="Dm">Dm</span>  <span data-cifra="A7">A7</span>
+Em tua presença estou, senhor
 De ti necessito muito amor
-   <span data-cifra="Dm">Dm</span>                    <span data-cifra="D7">D7</span>    <span data-cifra="Bb">Bb</span>
 Pelo poder que há em teu sangue remidor
-  <span data-cifra="C">C</span>                <span data-cifra="Dm">Dm</span>
-Ó vem purificar-me, meu Senhor`
-      },
+Ó vem purificar-me, meu senhor`,
 
       "02 - O sangue de Jesus tem poder para Salvar": `o sangue de Jesus tem poder
   o sangue de Jesus tem poder
@@ -669,7 +671,6 @@ Seja sobre nós a Tua graça`
       
       const tomOriginal = musica.tomOriginal;
       
-      // Separar a nota base e o sufixo do tom original
       const matchOriginal = tomOriginal.match(/^([A-G])(#|b)?(.*)/i);
       if (!matchOriginal) {
           console.error("Erro: Formato de tom original inválido.");
@@ -679,7 +680,6 @@ Seja sobre nós a Tua graça`
       const notaNormalizadaOriginal = normalizarNota(notaBaseOriginal.toUpperCase() + (acidenteOriginal || ''));
       const indexOriginal = notasMusicais.indexOf(notaNormalizadaOriginal);
 
-      // Separar a nota base e o sufixo do tom atual
       let tomAtualComSufixo = notaPrincipalSpan.textContent.trim();
       const matchAtual = tomAtualComSufixo.match(/^([A-G])(#|b)?(.*)/i);
       if (!matchAtual) {
@@ -695,23 +695,19 @@ Seja sobre nós a Tua graça`
           return;
       }
 
-      // Calcular o novo índice e a nova nota base
       const novoIndice = (indexAtual + direcao + notasMusicais.length) % notasMusicais.length;
       let novaNotaBase = notasMusicais[novoIndice];
 
-      // Verificar se a nota original era um bemol e, se sim, tentar usar bemol na nova nota
       if (acidenteOriginal === 'b') {
-        const bemolEquivalente = Object.keys(equivalentes).find(key => equivalentes[key] === novaNotaBase);
+        const bemolEquivalente = sharpsToFlats[novaNotaBase];
         if (bemolEquivalente) {
           novaNotaBase = bemolEquivalente;
         }
       }
 
-      // O sufixo deve ser o mesmo do tom original
       const novoTom = novaNotaBase + sufixoOriginal;
       notaPrincipalSpan.textContent = novoTom;
 
-      // Calcular a diferença de semitons em relação ao tom original
       let diferencaSemitons = novoIndice - indexOriginal;
       if (diferencaSemitons > notasMusicais.length / 2) {
           diferencaSemitons -= notasMusicais.length;
