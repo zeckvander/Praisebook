@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste de Transposição</title>
+</head>
+<body>
+
+    <h1>Teste de Transposição de Acorde</h1>
+    <p>Acorde inicial: <span id="acorde-para-testar">Em</span></p>
+    <button onclick="testarTransposicao()">Transpor Meio Tom para Cima</button>
+    <p>Acorde transposto: <span id="acorde-transposto"></span></p>
+
+    <script>
+        const notasMusicais = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+        const equivalentes = {
+            'Db': 'C#', 'Eb': 'D#', 'Fb': 'E',
+            'Gb': 'F#', 'Ab': 'G#', 'Bb': 'A#',
+            'Cb': 'B', 'E#': 'F', 'B#': 'C'
+        };
+
+        function normalizarNota(nota) {
+            return equivalentes[nota] || nota;
+        }
+
+        function transporNota(notaComSufixo, semitons) {
+            const match = notaComSufixo.match(/^([A-G])(#|b)?(.*)/i);
+            if (!match) return notaComSufixo;
+
+            let [, notaBase, acidente, sufixo] = match;
+            let notaNormalizada = normalizarNota(notaBase.toUpperCase() + (acidente || ''));
+            
+            let indexBase = notasMusicais.indexOf(notaNormalizada);
+            if (indexBase === -1) return notaComSufixo;
+            
+            indexBase = (indexBase + semitons + notasMusicais.length) % notasMusicais.length;
+            let novaNotaBase = notasMusicais[indexBase];
+
+            return novaNotaBase + sufixo;
+        }
+
+        function testarTransposicao() {
+            const acordeInicial = document.getElementById('acorde-para-testar').textContent;
+            const semitons = 1; // Meio tom para cima
+            const acordeTransposto = transporNota(acordeInicial, semitons);
+            document.getElementById('acorde-transposto').textContent = acordeTransposto;
+        }
+
+    </script>
+</body>
+</html>
