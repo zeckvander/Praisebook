@@ -1,177 +1,799 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>PRAISEBOOK - Tela Inicial</title>
+  <title>Praisebook - ICM</title>
   <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#a66" />
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #f5f5f7;
+      background: #fafafa;
+      margin: 20px;
       color: #222;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      gap: 40px;
     }
-
-    header {
+    .logo-container {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .logo-container img {
+      max-width: 280px;
+      height: auto;
+      image-rendering: crisp-edges;
+    }
+    .top-bar {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .search-bar {
+      width: 100%;
+      max-width: 600px;
+    }
+    .search-bar input[type="text"] {
+      width: 100%;
+      padding: 12px 16px;
+      border-radius: 25px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+    .search-bar input[type="text"]:focus {
+      border-color: #a66;
+    }
+    .add-button,
+    .save-button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 24px;
+      color: #888;
+      transition: color 0.2s;
+    }
+    .add-button:hover,
+    .save-button:hover {
+      color: #a66;
+    }
+    .song-list {
+      max-width: 600px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgb(0 0 0 / 0.1);
+      padding: 16px 20px;
+    }
+    .song-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #eee;
+      padding: 12px 0;
+    }
+    .song-item:last-child {
+      border-bottom: none;
+    }
+    .song-info {
+      flex: 1;
+    }
+    .song-title {
+      font-weight: 600;
+      font-size: 18px;
+      margin: 0;
+    }
+    .song-actions {
+      display: flex;
+      gap: 12px;
+    }
+    .action-button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 18px;
+      color: #888;
+      transition: color 0.2s;
+    }
+    .action-button:hover {
+      color: #a66;
+    }
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 10%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+      width: 90%;
+      max-width: 800px;
+      max-height: 80vh;
+      overflow-y: auto;
+      z-index: 1000;
+    }
+    .modal-backdrop {
+      display: none;
       position: fixed;
       top: 0;
       left: 0;
-      width: 100%;
-      background: #a66;
-      color: white;
-      font-weight: 700;
-      font-size: 1.8rem;
-      padding: 18px 0;
-      text-align: center;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-      letter-spacing: 2px;
-      user-select: none;
-      z-index: 10;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 999;
     }
-
-    /* Botão 🍪 no canto direito */
-    #clearDataBtn {
-      position: absolute;
-      right: 15px;
-      top: 50%;
-      transform: translateY(-50%);
-      background: transparent;
+    .modal button.close-btn {
+      float: right;
+      font-size: 24px;
       border: none;
-      font-size: 1.5rem;
+      background: none;
       cursor: pointer;
-      color: white;
-      padding: 5px;
-      transition: transform 0.2s;
+      line-height: 1;
     }
-
-    #clearDataBtn:hover {
-      transform: translateY(-50%) scale(1.2);
+    .modal h2 {
+      margin-top: 0;
+      margin-bottom: 1rem;
     }
-
-    main {
-      margin-top: 70px;
+    .modal pre {
+      white-space: pre-wrap;
+      font-family: inherit;
+      font-size: 16px;
+      line-height: 1.5;
+      color: #333;
+    }
+    /* Estilos para o Modal de Cifra */
+    #modalCifra pre {
+      font-family: monospace;
+      font-size: 14px;
+      line-height: 1.2;
+    }
+    .cifra-container {
       display: flex;
-      gap: 30px;
-      flex-wrap: wrap;
-      justify-content: center;
-      width: 100%;
-      max-width: 420px;
+      justify-content: flex-start;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 15px;
     }
-
-    button {
-      flex: 1 1 180px;
-      padding: 20px 0;
-      font-size: 1.4rem;
-      font-weight: 600;
-      color: white;
-      background-color: #a66;
-      border: none;
-      border-radius: 12px;
+    .cifra-container p {
+      margin: 0;
+      font-weight: bold;
+    }
+    .cifra-container button {
+      padding: 4px 8px;
+      font-size: 1em;
       cursor: pointer;
-      box-shadow: 0 6px 12px rgba(166, 102, 102, 0.4);
-      transition: background-color 0.3s, box-shadow 0.3s, transform 0.2s;
-      user-select: none;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      background-color: #f0f0f0;
     }
-
-    button:hover {
-      background-color: #8a5151;
-      box-shadow: 0 8px 16px rgba(138, 81, 81, 0.6);
-      transform: translateY(-3px);
-    }
-
-    button:active {
-      transform: translateY(-1px);
-      box-shadow: 0 4px 8px rgba(138, 81, 81, 0.5);
+    .cifra {
+      color: #0066cc;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
+  <div class="logo-container">
+    <img src="logo.png" alt="Igreja Cristã Maranata Logo" />
+  </div>
 
-  <header>
-    PRAISEBOOK
-    <button id="clearDataBtn" title="Limpar cookies, cache e SW">🍪</button>
-  </header>
+  <div class="top-bar">
+    <div class="search-bar">
+      <input
+        id="search-input"
+        type="text"
+        placeholder="Qual hino procura?"
+      />
+    </div>
+    <button class="add-button" title="Adicionar Letra" onclick="adicionarLetra()">+</button>
+    <button class="save-button" title="Salvar HTML" onclick="salvarHtml()">💾</button>
+  </div>
 
-  <main>
-    <button type="button" onclick="window.location.href='Coletanea_trad.html'">Coletânea</button>
-    <button type="button" onclick="window.location.href='Avul.html'">Avulsos</button>
-    <button type="button" onclick="window.location.href='Cias.html'">Cias</button>
-  </main>
+  <div class="song-list" id="listaMusicas"></div>
+
+  <div id="modalLetra" class="modal">
+    <button class="close-btn" onclick="fecharModal('modalLetra')">×</button>
+    <h2 id="tituloLetra"></h2>
+    <pre id="conteudoLetra"></pre>
+  </div>
+
+  <div id="modalCifra" class="modal">
+    <button class="close-btn" onclick="fecharModal('modalCifra')">×</button>
+    <h2 id="tituloCifra"></h2>
+    <div class="cifra-container">
+        <p>Tom: <span id="nota-principal" class="cifra"></span></p>
+        <button id="btn-transpor-menos">-</button>
+        <button id="btn-transpor-mais">+</button>
+    </div>
+    <pre id="conteudoCifra"></pre>
+  </div>
+
+  <div id="modalFundo" class="modal-backdrop" onclick="fecharModal('todos')"></div>
 
   <script>
-    // Registrar o Service Worker
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('service-worker.js')
-        .then(() => console.log("✅ Service Worker registrado"))
-        .catch(err => console.error("❌ Erro no SW:", err));
+    const lista = document.getElementById("listaMusicas");
+    const input = document.getElementById("search-input");
+
+    const notasMusicais = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+    const equivalentes = {
+        'Db': 'C#', 'Eb': 'D#', 'Fb': 'E',
+        'Gb': 'F#', 'Ab': 'G#', 'Bb': 'A#',
+        'Cb': 'B', 'E#': 'F', 'B#': 'C'
+    };
+
+    // Novo objeto para mapear sustenidos para bemóis
+    const sharpsToFlats = {
+        'C#': 'Db', 'D#': 'Eb', 'F#': 'Gb', 'G#': 'Ab', 'A#': 'Bb'
+    };
+
+    let tomAtual = '';
+
+    function normalizarNota(nota) {
+        return equivalentes[nota] || nota;
     }
 
-    // Função para checar atualizações do app
-    async function checarAtualizacoes() {
-      try {
-        const res = await fetch('/atualizacoes');
-        if (!res.ok) return;
-        const dados = await res.json();
-        const versaoLocal = localStorage.getItem('versaoApp') || '0';
-        if (dados.versao > versaoLocal) {
-          console.log("📥 Nova versão disponível, atualizando...");
-          localStorage.setItem('versaoApp', dados.versao);
-          window.location.reload();
+    // Nova função para aplicar as regras de notação final
+    function aplicarRegras(nota) {
+      const regrasFinais = {
+        'E#': 'F',
+        'B#': 'C',
+        'Fb': 'E',
+        'Cb': 'B'
+      };
+      return regrasFinais[nota] || nota;
+    }
+    
+    function transporNota(notaComSufixo, semitons) {
+      const match = notaComSufixo.match(/^([A-G])(#|b)?(.*)/i);
+      if (!match) return notaComSufixo;
+
+      const [, notaBase, acidente, sufixo] = match;
+      const notaNormalizada = normalizarNota(notaBase.toUpperCase() + (acidente || ''));
+
+      let indexBase = notasMusicais.indexOf(notaNormalizada);
+      if (indexBase === -1) return notaComSufixo;
+
+      indexBase = (indexBase + semitons + notasMusicais.length) % notasMusicais.length;
+      let novaNotaBase = notasMusicais[indexBase];
+      
+      // Tenta manter a notação de bemol se a nota original tinha um
+      if (acidente === 'b') {
+          const bemolEquivalente = sharpsToFlats[novaNotaBase];
+          if (bemolEquivalente) {
+              novaNotaBase = bemolEquivalente;
+          }
+      }
+
+      // Aplica as regras de conversão enarmônica solicitadas pelo usuário
+      novaNotaBase = aplicarRegras(novaNotaBase);
+
+      return novaNotaBase + sufixo;
+    }
+
+    function transporAcorde(acorde, semitons) {
+        const partes = acorde.split('/');
+        const acordePrincipal = partes[0];
+        const notaDoBaixo = partes[1];
+
+        const novoAcordePrincipal = transporNota(acordePrincipal, semitons);
+
+        if (notaDoBaixo) {
+            const novaNotaDoBaixo = transporNota(notaDoBaixo, semitons);
+            return `${novoAcordePrincipal}/${novaNotaDoBaixo}`;
         }
-      } catch {
-        console.warn("Sem conexão para verificar atualização");
+
+        return novoAcordePrincipal;
+    }
+
+
+    const letras = {
+      "C/C - Aquilo Que Fui Não Sou Mais": `Aquilo que fui não sou mais,
+Nem sou tudo o que devo ser;
+Já sou pela graça o que sou
+E ao vê-lo estou certo que vou
+Na Glória de Cristo viver.
+
+(Coro)
+Maranata, Maranata,
+Em Breve o Senhor Voltará;
+Maranata, Maranata,
+Ele mesmo virá nos buscar.
+
+Eu morto pensei que vivia,
+Já vivo e com Cristo morri;
+Para ele, estou ressuscitado,
+Para o mundo, estou Crucificado;
+Minha vida em Jesus escondi.
+
+Minh'alma gozando riquezas,
+Tesouros que o mundo não dá,
+Caminha na doce esperança,
+Da Vida em eterna bonança,
+Na glória onde Jesus está.`,
+
+      "01 - O Sangue de Jesus Tem Poder": `O sangue de Jesus tem poder
+Poder que a mim pode valer
+Se comunhão não posso eu sentir, senhor
+Derrama do teu sangue remidor
+
+(CORO)
+Derrama do teu sangue sobre mim
+Ó senhor
+Derrama do teu sangue sobre mim
+Ó senhor
+Sei que estás aqui e isto quero eu sentir
+Derrama do teu sangue sobre mim
+
+Em tua presença estou, senhor
+De ti necessito muito amor
+Pelo poder que há em teu sangue remidor
+Ó vem purificar-me, meu senhor`,
+
+      "02 - O sangue de Jesus tem poder para Salvar": `o sangue de Jesus tem poder
+  o sangue de Jesus tem poder
+  o sangue de Jesus, o sangue de Jesus,
+  o sangue de Jesus tem poder
+  
+  o sangue de Jesus tem poder para salvar
+  o sangue de Jesus tem poder para curar
+  o sangue de Jesus, o sangue de Jesus
+  tem poder para o oprimido libertar`,
+
+      "03 - Clamo a Ti": `Clamo a ti,ó meu senhor,
+  Clamo a ti, meu salvador,
+  Pelo teu sangue, que é vida,
+  Ó bendito, vem me libertar.
+  
+  Clamo a ti,ó meu senhor,
+  Clamo a ti, meu salvador,
+  Pelo teu sangue, que é vida,
+  Ó bendito, vem me libertar.
+  
+  Quando além do véu entrar,
+  Irei te dar todo o meu ser
+  Em tua presença, te adorar,
+  Te bendizer.
+  
+  Clamo a ti,ó meu senhor,
+  Clamo a ti, meu salvador,
+  Pelo teu sangue, que é vida,
+  Ó bendito, vem me libertar.`,
+
+      "04 - Quando Te Prostrares": `Quando te prostrares diante de Deus
+  Lembra que Jesus está contigo
+  Pede seu auxílio, pede teu perdão
+  Lembra que Jesus é teu abrigo
+  
+  Quando te prostrares diante de Deus
+  Lembra que Jesus está contigo
+  Pede seu auxílio, pede teu perdão
+  Lembra que Jesus é teu abrigo
+  
+  Deixa que o Senhor
+  Mude o teu viver
+  Lembra que Jesus é teu amigo
+  
+  Venha sobre nós (ó Deus)
+  Venha sobre nós
+  Seja sobre nós a Tua graça
+  
+  Venha sobre nós (ó Deus)
+  Venha sobre nós
+  Seja sobre nós a Tua graça`,
+
+    };
+
+    const cifras = {
+      "C/C - Aquilo Que Fui Não Sou Mais": {
+        tomOriginal: 'G',
+        html: `  <span data-cifra="Em">Em</span>                    <span data-cifra="C">C</span>
+Aquilo que fui não sou mais
+                         <span data-cifra="B">B</span>
+Nem sou tudo o que devo ser
+                         <span data-cifra="Am">Am</span>
+Já sou pela graça o que sou
+                            <span data-cifra="C">C</span>
+E ao vê-lo estou certo que vou
+   <span data-cifra="B">B</span>                  <span data-cifra="Em">Em</span>   <span data-cifra="E">E</span>
+Na Glória de Cristo viver
+
+(CORO)
+   <span data-cifra="Am">Am</span>  <span data-cifra="D">D</span>      <span data-cifra="G">G</span>  <span data-cifra="C">C</span>
+Maranata, Maranata
+  <span data-cifra="F#dim">F#dim</span>          <span data-cifra="B7">B7</span>      <span data-cifra="Em">Em</span>  <span data-cifra="E">E</span>
+Em breve o Senhor voltará
+   <span data-cifra="Am">Am</span>  <span data-cifra="D">D</span>      <span data-cifra="G">G</span>  <span data-cifra="C">C</span>
+Maranata, Maranata
+   <span data-cifra="F#dim">F#dim</span>       <span data-cifra="B7">B7</span>       <span data-cifra="Em">Em</span>   <span data-cifra="Am">Am</span>   <span data-cifra="Em">Em</span>
+Ele mesmo virá nos buscar
+
+  <span data-cifra="Em">Em</span>                  <span data-cifra="C">C</span>
+Eu morto pensei que vivia
+                       <span data-cifra="B">B</span>
+Já vivo e com Cristo morri
+                        <span data-cifra="Am">Am</span>
+Para ele, estou ressuscitado
+                           <span data-cifra="C">C</span>
+Para o mundo, estou crucificado
+     <span data-cifra="B">B</span>                   <span data-cifra="Em">Em</span>  <span data-cifra="E">E</span>
+Minha vida em Jesus escondi
+
+  <span data-cifra="Em">Em</span>                <span data-cifra="C">C</span>
+Minh'alma gozando riquezas
+                          <span data-cifra="B">B</span>
+Tesouros que o mundo não dá
+                    <span data-cifra="Am">Am</span>
+Caminha na doce esperança
+                    <span data-cifra="C">C</span>
+Da Vida em eterna bonança
+  <span data-cifra="B">B</span>                    <span data-cifra="Em">Em</span>  <span data-cifra="E">E</span>
+Na glória onde Jesus está.`
+      },
+      "01 - O Sangue de Jesus Tem Poder": {
+        tomOriginal: 'Dm',
+        html: `  <span data-cifra="Dm">Dm</span>             <span data-cifra="Bb">Bb</span>
+O sangue de Jesus tem poder
+ <span data-cifra="A">A</span>                 <span data-cifra="Gm">Gm</span>  <span data-cifra="C7">C7</span>
+Poder que a mim pode valer
+  <span data-cifra="Dm">Dm</span>              <span data-cifra="D7">D7</span>     <span data-cifra="Gm">Gm</span>
+Se comunhão não posso eu sentir, Senhor
+ <span data-cifra="C">C</span>                  <span data-cifra="A7">A7</span>  <span data-cifra="Dm">Dm</span>
+Derrama do teu sangue remidor
+
+(CORO)
+<span data-cifra="Dm">Dm</span>         <span data-cifra="Bb">Bb</span>           <span data-cifra="Dm">Dm</span>
+Derrama do teu sangue sobre mim
+<span data-cifra="A">A</span>  <span data-cifra="Dm">Dm</span>  <span data-cifra="A7">A7</span>
+Ó Senhor
+<span data-cifra="Dm">Dm</span>         <span data-cifra="Bb">Bb</span>           <span data-cifra="Dm">Dm</span>
+Derrama do teu sangue sobre mim
+<span data-cifra="A">A</span>  <span data-cifra="Dm">Dm</span>  <span data-cifra="A7">A7</span>
+Ó Senhor
+  <span data-cifra="Dm">Dm</span>           <span data-cifra="D7">D7</span>         <span data-cifra="Bb">Bb</span>
+Sei que estás aqui e isto quero eu sentir
+ <span data-cifra="C">C</span>                   <span data-cifra="Dm">Dm</span>
+Derrama do teu sangue sobre mim
+
+ <span data-cifra="Dm">Dm</span>                   <span data-cifra="Bb">Bb</span>
+Em tua presença estou, Senhor
+  <span data-cifra="A">A</span>                 <span data-cifra="Dm">Dm</span>  <span data-cifra="A7">A7</span>
+De ti necessito muito amor
+   <span data-cifra="Dm">Dm</span>                    <span data-cifra="D7">D7</span>    <span data-cifra="Bb">Bb</span>
+Pelo poder que há em teu sangue remidor
+  <span data-cifra="C">C</span>                <span data-cifra="Dm">Dm</span>
+Ó vem purificar-me, meu Senhor`
+      },
+      "02 - O sangue de Jesus tem poder para Salvar": {
+        tomOriginal: 'G',
+        html: `  <span data-cifra="G">G</span>                       <span data-cifra="C">C</span>
+O sangue de Jesus tem poder
+  <span data-cifra="G">G</span>                       <span data-cifra="C">C</span>
+O sangue de Jesus tem poder
+  <span data-cifra="D">D</span>                    <span data-cifra="G">G</span>
+O sangue de Jesus, o sangue de Jesus,
+  <span data-cifra="D">D</span>                  <span data-cifra="G">G</span>
+O sangue de Jesus tem poder
+
+  <span data-cifra="G">G</span>                        <span data-cifra="C">C</span>
+O sangue de Jesus tem poder para salvar
+  <span data-cifra="G">G</span>                        <span data-cifra="C">C</span>
+O sangue de Jesus tem poder para curar
+  <span data-cifra="D">D</span>                    <span data-cifra="G">G</span>
+O sangue de Jesus, o sangue de Jesus
+  <span data-cifra="D">D</span>                        <span data-cifra="G">G</span>
+Tem poder para o oprimido libertar`
+      },
+      "03 - Clamo a Ti": {
+        tomOriginal: 'Am',
+        html: `  <span data-cifra="Am">Am</span>       <span data-cifra="G">G</span>      <span data-cifra="Am">Am</span>
+Clamo a ti,ó meu Senhor,
+      <span data-cifra="G">G</span>          <span data-cifra="Am">Am</span>
+Clamo a ti, meu Salvador,
+  <span data-cifra="Dm">Dm</span>        <span data-cifra="F">F</span>        <span data-cifra="C">C</span>
+Pelo teu sangue, que é vida,
+  <span data-cifra="G">G</span>           <span data-cifra="Am">Am</span>
+Ó bendito, vem me libertar.
+
+  <span data-cifra="Am">Am</span>       <span data-cifra="G">G</span>      <span data-cifra="Am">Am</span>
+Clamo a ti,ó meu Senhor,
+      <span data-cifra="G">G</span>          <span data-cifra="Am">Am</span>
+Clamo a ti, meu Salvador,
+  <span data-cifra="Dm">Dm</span>        <span data-cifra="F">F</span>        <span data-cifra="C">C</span>
+Pelo teu sangue, que é vida,
+  <span data-cifra="G">G</span>           <span data-cifra="Am">Am</span>
+Ó bendito, vem me libertar.
+
+   <span data-cifra="C">C</span>          <span data-cifra="G">G</span>      <span data-cifra="Am">Am</span>
+Quando além do véu entrar,
+   <span data-cifra="F">F</span>         <span data-cifra="E">E</span>      <span data-cifra="Am">Am</span>
+Irei te dar todo o meu ser
+  <span data-cifra="C">C</span>            <span data-cifra="G">G</span>       <span data-cifra="Am">Am</span>
+Em tua presença, te adorar,
+ <span data-cifra="F">F</span>     <span data-cifra="E">E</span>   <span data-cifra="Am">Am</span>
+Te bendizer.
+
+  <span data-cifra="Am">Am</span>       <span data-cifra="G">G</span>      <span data-cifra="Am">Am</span>
+Clamo a ti,ó meu Senhor,
+      <span data-cifra="G">G</span>          <span data-cifra="Am">Am</span>
+Clamo a ti, meu Salvador,
+  <span data-cifra="Dm">Dm</span>        <span data-cifra="F">F</span>        <span data-cifra="C">C</span>
+Pelo teu sangue, que é vida,
+  <span data-cifra="G">G</span>           <span data-cifra="Am">Am</span>
+Ó bendito, vem me libertar.`
+      },
+      "04 - Quando Te Prostrares": {
+        tomOriginal: 'C',
+        html: `  <span data-cifra="C">C</span>                  <span data-cifra="G">G</span>
+Quando te prostrares diante de Deus
+   <span data-cifra="Am">Am</span>                    <span data-cifra="Em">Em</span>
+Lembra que Jesus está contigo
+  <span data-cifra="F">F</span>                   <span data-cifra="C">C</span>
+Pede seu auxílio, pede teu perdão
+  <span data-cifra="G">G</span>                     <span data-cifra="C">C</span>
+Lembra que Jesus é teu abrigo
+
+  <span data-cifra="C">C</span>                  <span data-cifra="G">G</span>
+Quando te prostrares diante de Deus
+   <span data-cifra="Am">Am</span>                    <span data-cifra="Em">Em</span>
+Lembra que Jesus está contigo
+  <span data-cifra="F">F</span>                   <span data-cifra="C">C</span>
+Pede seu auxílio, pede teu perdão
+  <span data-cifra="G">G</span>                     <span data-cifra="C">C</span>
+Lembra que Jesus é teu abrigo
+
+   <span data-cifra="Dm">Dm</span>               <span data-cifra="C">C</span>
+Deixa que o Senhor
+    <span data-cifra="G">G</span>             <span data-cifra="C">C</span>
+Mude o teu viver
+   <span data-cifra="Dm">Dm</span>                     <span data-cifra="G">G</span>
+Lembra que Jesus é teu amigo
+
+  <span data-cifra="C">C</span>           <span data-cifra="F">F</span>
+Venha sobre nós (ó Deus)
+  <span data-cifra="G">G</span>         <span data-cifra="C">C</span>
+Venha sobre nós
+  <span data-cifra="F">F</span>          <span data-cifra="G">G</span>          <span data-cifra="C">C</span>
+Seja sobre nós a Tua graça
+
+  <span data-cifra="C">C</span>           <span data-cifra="F">F</span>
+Venha sobre nós (ó Deus)
+  <span data-cifra="G">G</span>         <span data-cifra="C">C</span>
+Venha sobre nós
+  <span data-cifra="F">F</span>          <span data-cifra="G">G</span>          <span data-cifra="C">C</span>
+Seja sobre nós a Tua graça`
+      }
+    };
+
+    function atualizarLista() {
+      lista.innerHTML = "";
+      const filtro = input.value.toLowerCase();
+      Object.keys(letras)
+        .filter((titulo) => titulo.toLowerCase().includes(filtro))
+        .forEach((titulo) => {
+          const div = document.createElement("div");
+          div.className = "song-item";
+
+          const temCifra = !!cifras[titulo];
+          const cifraButton = temCifra
+            ? `<button class="action-button" title="Cifra" onclick="abrirModalCifra('${titulo.replace(/'/g, "\\'")}')">🎸</button>`
+            : '';
+
+          div.innerHTML = `
+          <div class="song-info">
+            <p class="song-title">${titulo}</p>
+          </div>
+          <div class="song-actions">
+            <button class="action-button" title="Letra" onclick="abrirModalLetra('${titulo.replace(/'/g, "\\'")}')">T</button>
+            ${cifraButton}
+          </div>
+        `;
+          lista.appendChild(div);
+        });
+    }
+
+    input.addEventListener("input", atualizarLista);
+
+    function abrirModalLetra(titulo) {
+      const modal = document.getElementById("modalLetra");
+      const fundo = document.getElementById("modalFundo");
+      const tituloLetra = document.getElementById("tituloLetra");
+      const conteudoLetra = document.getElementById("conteudoLetra");
+
+      tituloLetra.textContent = titulo;
+      conteudoLetra.textContent = letras[titulo] || "Letra não encontrada.";
+
+      modal.style.display = "block";
+      fundo.style.display = "block";
+    }
+
+    function abrirModalCifra(titulo) {
+      const modal = document.getElementById("modalCifra");
+      const fundo = document.getElementById("modalFundo");
+      const tituloCifra = document.getElementById("tituloCifra");
+      const conteudoCifra = document.getElementById("conteudoCifra");
+      const notaPrincipalSpan = document.getElementById('nota-principal');
+
+      const musica = cifras[titulo];
+
+      if (musica) {
+        tituloCifra.textContent = titulo;
+        conteudoCifra.innerHTML = musica.html;
+
+        tomAtual = musica.tomOriginal;
+        notaPrincipalSpan.textContent = tomAtual;
+
+        modal.style.display = "block";
+        fundo.style.display = "block";
+      } else {
+        alert("Cifra não disponível para este hino.");
       }
     }
 
-    if (navigator.onLine) {
-      checarAtualizacoes();
-      setInterval(checarAtualizacoes, 30000);
+    function fecharModal(modalId) {
+      if (modalId === 'todos') {
+        document.getElementById("modalLetra").style.display = "none";
+        document.getElementById("modalCifra").style.display = "none";
+        document.getElementById("modalFundo").style.display = "none";
+      } else {
+        document.getElementById(modalId).style.display = "none";
+        document.getElementById("modalFundo").style.display = "none";
+      }
     }
 
-    // Função para limpar tudo (cookies, cache, storage e SW)
-    document.getElementById('clearDataBtn').addEventListener('click', async () => {
-      // Apagar cookies
-      document.cookie.split(";").forEach(cookie => {
-        const name = cookie.split("=")[0].trim();
-        document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;`;
-      });
+    // Adiciona os event listeners para os botões de transposição
+    document.addEventListener('DOMContentLoaded', () => {
+        const btnMenos = document.getElementById('btn-transpor-menos');
+        const btnMais = document.getElementById('btn-transpor-mais');
 
-      // Apagar cache do SW
-      if ('caches' in window) {
-        const keys = await caches.keys();
-        await Promise.all(keys.map(key => caches.delete(key)));
-      }
-
-      // Limpar localStorage e sessionStorage
-      localStorage.clear();
-      sessionStorage.clear();
-
-      // Desinstalar Service Workers
-      if ('serviceWorker' in navigator) {
-        const registrations = await navigator.serviceWorker.getRegistrations();
-        for (let registration of registrations) {
-          await registration.unregister();
+        if (btnMenos) {
+            btnMenos.addEventListener('click', () => mudarTom(-1));
         }
-      }
 
- //     alert("Reset completed");
-      location.reload();
+        if (btnMais) {
+            btnMais.addEventListener('click', () => mudarTom(1));
+        }
     });
-  </script>
 
-  <script src="./script.js"></script>
+    function mudarTom(direcao) {
+      const notaPrincipalSpan = document.getElementById('nota-principal');
+      const cifraSpans = document.querySelectorAll('#modalCifra [data-cifra]');
+      const tituloMusica = document.getElementById('tituloCifra').textContent;
+      const musica = cifras[tituloMusica];
+
+      if (!musica) {
+          console.error("Erro: Música não encontrada nos dados de cifra.");
+          return;
+      }
+      
+      const tomOriginal = musica.tomOriginal;
+      
+      const matchOriginal = tomOriginal.match(/^([A-G])(#|b)?(.*)/i);
+      if (!matchOriginal) {
+          console.error("Erro: Formato de tom original inválido.");
+          return;
+      }
+      const [, notaBaseOriginal, acidenteOriginal, sufixoOriginal] = matchOriginal;
+      const notaNormalizadaOriginal = normalizarNota(notaBaseOriginal.toUpperCase() + (acidenteOriginal || ''));
+      const indexOriginal = notasMusicais.indexOf(notaNormalizadaOriginal);
+
+      let tomAtualComSufixo = notaPrincipalSpan.textContent.trim();
+      const matchAtual = tomAtualComSufixo.match(/^([A-G])(#|b)?(.*)/i);
+      if (!matchAtual) {
+          console.error("Erro: Formato de nota atual inválido.");
+          return;
+      }
+      const [, notaBaseAtual, acidenteAtual, sufixoAtual] = matchAtual;
+      const notaNormalizadaAtual = normalizarNota(notaBaseAtual.toUpperCase() + (acidenteAtual || ''));
+      let indexAtual = notasMusicais.indexOf(notaNormalizadaAtual);
+
+      if (indexOriginal === -1 || indexAtual === -1) {
+          console.error("Erro: Notas não encontradas no array de notas.");
+          return;
+      }
+
+      const novoIndice = (indexAtual + direcao + notasMusicais.length) % notasMusicais.length;
+      let novaNotaBase = notasMusicais[novoIndice];
+
+      if (acidenteOriginal === 'b') {
+        const bemolEquivalente = sharpsToFlats[novaNotaBase];
+        if (bemolEquivalente) {
+          novaNotaBase = bemolEquivalente;
+        }
+      }
+
+      const novoTom = novaNotaBase + sufixoOriginal;
+      notaPrincipalSpan.textContent = novoTom;
+
+      let diferencaSemitons = novoIndice - indexOriginal;
+      if (diferencaSemitons > notasMusicais.length / 2) {
+          diferencaSemitons -= notasMusicais.length;
+      } else if (diferencaSemitons < -notasMusicais.length / 2) {
+          diferencaSemitons += notasMusicais.length;
+      }
+
+      cifraSpans.forEach(elemento => {
+          const cifraOriginal = elemento.getAttribute('data-cifra');
+          const novaCifra = transporAcorde(cifraOriginal, diferencaSemitons);
+          elemento.textContent = novaCifra;
+      });
+    }
+
+    function adicionarLetra() {
+      const tipo = prompt(
+        "Deseja adicionar:\n1 - Letra\n2 - Cifra\n3 - Partitura"
+      );
+      if (tipo !== "1") return alert("Atualmente só está implementado para Letra.");
+
+      const textoCompleto = prompt(
+        "Cole a letra do hino.\nA primeira linha será o título:"
+      );
+      if (!textoCompleto) return;
+
+      const linhas = textoCompleto.trim().split("\n");
+      const titulo = linhas[0].trim();
+      const letra = linhas.slice(1).join("\n").trim();
+
+      if (!titulo || !letra)
+        return alert("Formato inválido. A primeira linha deve ser o título.");
+
+      letras[titulo] = letra;
+      atualizarLista();
+      alert(`Hino "${titulo}" adicionado com sucesso!`);
+    }
+
+    function salvarHtml() {
+      let letrasStringEntries = [];
+      for (const [titulo, letra] of Object.entries(letras)) {
+        const letraEscapada = letra.replace(/`/g, "\\`");
+        letrasStringEntries.push(`"${titulo}": \`${letras[titulo]}\``);
+      }
+      const letrasString = "const letras = {\n" + letrasStringEntries.join(",\n") + "\n};";
+
+      let pagina = document.documentElement.outerHTML;
+
+      const regex = /const letras = \{[\s\S]*?\};/;
+      pagina = pagina.replace(regex, letrasString);
+
+      const blob = new Blob([pagina], { type: "text/html;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "Praisebook_atualizado.html";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    async function atualizarMusicasOnline() {
+      const urlJSON = "https://seusite.com/musicas.json";
+
+      try {
+        const response = await fetch(urlJSON, { cache: "no-store" });
+        if (!response.ok) throw new Error("Não foi possível buscar músicas online");
+        const musicasOnline = await response.json();
+
+        Object.assign(letras, musicasOnline);
+
+        atualizarLista();
+        console.log("Músicas atualizadas online.");
+      } catch (e) {
+        console.log("Offline ou erro ao buscar músicas:", e);
+      }
+    }
+
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker
+        .register("sw.js")
+        .then(() => console.log("Service Worker registrado."))
+        .catch((err) => console.log("Erro ao registrar SW:", err));
+    }
+
+    // Inicialização
+    atualizarLista();
+    atualizarMusicasOnline();
+  </script>
 </body>
 </html>
