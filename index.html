@@ -4,100 +4,108 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>PRAISEBOOK</title>
-  <link rel="manifest" href="manifest.json" />
   <style>
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background-color: #fff5f5;
+      background: #fff;
       display: flex;
       flex-direction: column;
       height: 100vh;
     }
 
-    header img {
+    /* Logo no topo */
+    .logo {
       width: 100%;
       height: auto;
       display: block;
     }
 
-    .nav-buttons {
+    /* Área central */
+    .center-buttons {
       flex: 1;
       display: flex;
       flex-direction: column;
-      justify-content: center; /* Centraliza verticalmente */
-      align-items: center;     /* Centraliza horizontalmente */
-      gap: 20px;               /* Espaçamento entre botões */
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
     }
 
-    button {
-      padding: 20px 40px;
-      font-size: 1.2rem;
-      border: none;
-      border-radius: 10px;
-      background-color: #e63946; /* Vermelho principal */
+    /* Estilo dos botões */
+    .btn {
+      padding: 15px 30px;
+      font-size: 1.2em;
+      background: #b22222; /* vermelho escuro */
       color: white;
+      border: none;
+      border-radius: 8px;
       cursor: pointer;
-      transition: background-color 0.3s ease;
-      width: 220px;
+      text-decoration: none;
       text-align: center;
+      font-weight: bold;
+      min-width: 200px;
+    }
+    .btn:hover {
+      background: #8b0000; /* vermelho mais escuro no hover */
     }
 
-    button:hover {
-      background-color: #b72d38; /* Vermelho mais escuro */
-    }
-
-    #reloadBtn {
+    /* Botão de recarregar no canto inferior direito */
+    .refresh-btn {
       position: fixed;
       bottom: 20px;
       right: 20px;
-      background-color: #e63946;
-      font-size: 1.5rem;
-      padding: 15px;
+      font-size: 1.5em;
+      background: #b22222;
+      color: white;
+      border: none;
       border-radius: 50%;
-      width: 60px;
-      height: 60px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      width: 50px;
+      height: 50px;
+      cursor: pointer;
+    }
+    .refresh-btn:hover {
+      background: #8b0000;
     }
   </style>
 </head>
 <body>
-  <header>
-    <img src="logo.png" alt="Logo" />
-  </header>
 
-  <div class="nav-buttons">
-    <button onclick="window.location.href='https://drive.google.com/drive/folders/1Ak-rNrraYknwBXpy13qHLbcF7-x3pZEv?usp=sharing'">
-      Drive oficial
-    </button>
-    <button onclick="window.location.href='https://youtube.com/@igrejacristamaranataoficial?si=c2bLxCLeHQCdYCe8'">
-      YouTube oficial
-    </button>
+  <!-- Logo -->
+  <img src="logo.png" alt="Logo" class="logo" />
+
+  <!-- Botões centrais -->
+  <div class="center-buttons">
+    <a href="Coletanea_trad.html" class="btn">Coletânea</a>
+    <a href="Avul.html" class="btn">Avulsos</a>
+    <a href="Cias.html" class="btn">Cias</a>
+    <a href="https://drive.google.com/drive/folders/1Ak-rNrraYknwBXpy13qHLbcF7-x3pZEv?usp=sharing" target="_blank" class="btn">Drive oficial</a>
+    <a href="https://youtube.com/@igrejacristamaranataoficial?si=c2bLxCLeHQCdYCe8" target="_blank" class="btn">YouTube oficial</a>
   </div>
 
-  <button id="reloadBtn" title="Limpar cache e cookies">⟳</button>
+  <!-- Botão de limpar cache/cookies e recarregar -->
+  <button class="refresh-btn" onclick="clearCookiesAndCache()">⟳</button>
 
   <script>
-    document.getElementById("reloadBtn").addEventListener("click", function() {
-      // Limpa cache
+    function clearCookiesAndCache() {
+      // Apagar cookies
+      document.cookie.split(";").forEach(function(c) {
+        document.cookie = c.trim().split("=")[0] + 
+          '=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/';
+      });
+
+      // Apagar cache
       if ('caches' in window) {
         caches.keys().then(function(names) {
-          for (let name of names) caches.delete(name);
+          for (let name of names) {
+            caches.delete(name);
+          }
         });
       }
 
-      // Limpa cookies
-      document.cookie.split(";").forEach(function(c) { 
-        document.cookie = c
-          .replace(/^ +/, "")
-          .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
-      });
-
-      // Recarrega a página
+      // Recarregar página
       location.reload(true);
-    });
+    }
   </script>
+
 </body>
 </html>
