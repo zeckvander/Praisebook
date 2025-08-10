@@ -242,7 +242,15 @@
       if (indexBase === -1) return notaComSufixo;
 
       indexBase = (indexBase + semitons + notasMusicais.length) % notasMusicais.length;
-      const novaNotaBase = notasMusicais[indexBase];
+      let novaNotaBase = notasMusicais[indexBase];
+
+      // Verifica se a nota original era um bemol e, se sim, aplica a notação de bemol na nova nota
+      if (acidente === 'b') {
+        const bemolEquivalente = Object.keys(equivalentes).find(key => equivalentes[key] === novaNotaBase);
+        if (bemolEquivalente) {
+          novaNotaBase = bemolEquivalente;
+        }
+      }
 
       return novaNotaBase + sufixo;
     }
@@ -288,23 +296,40 @@ Caminha na doce esperança,
 Da Vida em eterna bonança,
 Na glória onde Jesus está.`,
 
-      "01 - O Sangue de Jesus Tem Poder": `O sangue de Jesus tem poder
+      "01 - O Sangue de Jesus Tem Poder": {
+        tomOriginal: 'Dm',
+        html: `  <span data-cifra="Dm">Dm</span>             <span data-cifra="Bb">Bb</span>
+O sangue de Jesus tem poder
+ <span data-cifra="A">A</span>                 <span data-cifra="Gm">Gm</span>  <span data-cifra="C7">C7</span>
 Poder que a mim pode valer
-Se comunhão não posso eu sentir, senhor
+  <span data-cifra="Dm">Dm</span>              <span data-cifra="D7">D7</span>     <span data-cifra="Gm">Gm</span>
+Se comunhão não posso eu sentir, Senhor
+ <span data-cifra="C">C</span>                  <span data-cifra="A7">A7</span>  <span data-cifra="Dm">Dm</span>
 Derrama do teu sangue remidor
 
 (CORO)
+<span data-cifra="Dm">Dm</span>         <span data-cifra="Bb">Bb</span>           <span data-cifra="Dm">Dm</span>
 Derrama do teu sangue sobre mim
-Ó senhor
+<span data-cifra="A">A</span>  <span data-cifra="Dm">Dm</span>  <span data-cifra="A7">A7</span>
+Ó Senhor
+<span data-cifra="Dm">Dm</span>         <span data-cifra="Bb">Bb</span>           <span data-cifra="Dm">Dm</span>
 Derrama do teu sangue sobre mim
-Ó senhor
+<span data-cifra="A">A</span>  <span data-cifra="Dm">Dm</span>  <span data-cifra="A7">A7</span>
+Ó Senhor
+  <span data-cifra="Dm">Dm</span>           <span data-cifra="D7">D7</span>         <span data-cifra="Bb">Bb</span>
 Sei que estás aqui e isto quero eu sentir
+ <span data-cifra="C">C</span>                   <span data-cifra="Dm">Dm</span>
 Derrama do teu sangue sobre mim
 
-Em tua presença estou, senhor
+ <span data-cifra="Dm">Dm</span>                   <span data-cifra="Bb">Bb</span>
+Em tua presença estou, Senhor
+  <span data-cifra="A">A</span>                 <span data-cifra="Dm">Dm</span>  <span data-cifra="A7">A7</span>
 De ti necessito muito amor
+   <span data-cifra="Dm">Dm</span>                    <span data-cifra="D7">D7</span>    <span data-cifra="Bb">Bb</span>
 Pelo poder que há em teu sangue remidor
-Ó vem purificar-me, meu senhor`,
+  <span data-cifra="C">C</span>                <span data-cifra="Dm">Dm</span>
+Ó vem purificar-me, meu Senhor`
+      },
 
       "02 - O sangue de Jesus tem poder para Salvar": `o sangue de Jesus tem poder
   o sangue de Jesus tem poder
@@ -672,7 +697,15 @@ Seja sobre nós a Tua graça`
 
       // Calcular o novo índice e a nova nota base
       const novoIndice = (indexAtual + direcao + notasMusicais.length) % notasMusicais.length;
-      const novaNotaBase = notasMusicais[novoIndice];
+      let novaNotaBase = notasMusicais[novoIndice];
+
+      // Verificar se a nota original era um bemol e, se sim, tentar usar bemol na nova nota
+      if (acidenteOriginal === 'b') {
+        const bemolEquivalente = Object.keys(equivalentes).find(key => equivalentes[key] === novaNotaBase);
+        if (bemolEquivalente) {
+          novaNotaBase = bemolEquivalente;
+        }
+      }
 
       // O sufixo deve ser o mesmo do tom original
       const novoTom = novaNotaBase + sufixoOriginal;
