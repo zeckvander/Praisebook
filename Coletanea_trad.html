@@ -632,50 +632,65 @@ Seja sobre nós a Tua graça`
     });
 
     function mudarTom(direcao) {
-        const notaPrincipalSpan = document.getElementById('nota-principal');
-        const cifraSpans = document.querySelectorAll('#modalCifra [data-cifra]');
-        const tituloMusica = document.getElementById('tituloCifra').textContent;
-        const musica = cifras[tituloMusica];
+      const notaPrincipalSpan = document.getElementById('nota-principal');
+      const cifraSpans = document.querySelectorAll('#modalCifra [data-cifra]');
+      const tituloMusica = document.getElementById('tituloCifra').textContent;
+      const musica = cifras[tituloMusica];
 
-        if (!musica) {
-            console.error("Erro: Música não encontrada nos dados de cifra.");
-            return;
-        }
+      if (!musica) {
+          console.error("Erro: Música não encontrada nos dados de cifra.");
+          return;
+      }
+      
+      const tomOriginal = musica.tomOriginal;
+      
+      // Separar a nota base e o sufixo do tom original
+      const matchOriginal = tomOriginal.match(/^([A-G])(#|b)?(.*)/i);
+      if (!matchOriginal) {
+          console.error("Erro: Formato de tom original inválido.");
+          return;
+      }
+      const [, notaBaseOriginal, acidenteOriginal, sufixoOriginal] = matchOriginal;
+      const notaNormalizadaOriginal = normalizarNota(notaBaseOriginal.toUpperCase() + (acidenteOriginal || ''));
+      const indexOriginal = notasMusicais.indexOf(notaNormalizadaOriginal);
 
-        let tomAtualComSufixo = notaPrincipalSpan.textContent.trim();
-        
-        // Separa a nota base do sufixo do tom atual (ex: 'Dm' -> 'D', 'm')
-        const match = tomAtualComSufixo.match(/^([A-G])(#|b)?(.*)/i);
-        if (!match) {
-            console.error("Erro: Formato de nota inválido.");
-            return;
-        }
-        const [, notaBaseAtual, acidenteAtual, sufixoAtual] = match;
+      // Separar a nota base e o sufixo do tom atual
+      let tomAtualComSufixo = notaPrincipalSpan.textContent.trim();
+      const matchAtual = tomAtualComSufixo.match(/^([A-G])(#|b)?(.*)/i);
+      if (!matchAtual) {
+          console.error("Erro: Formato de nota atual inválido.");
+          return;
+      }
+      const [, notaBaseAtual, acidenteAtual, sufixoAtual] = matchAtual;
+      const notaNormalizadaAtual = normalizarNota(notaBaseAtual.toUpperCase() + (acidenteAtual || ''));
+      let indexAtual = notasMusicais.indexOf(notaNormalizadaAtual);
 
-        // Calcula o novo índice da nota base
-        const notaNormalizadaAtual = normalizarNota(notaBaseAtual.toUpperCase() + (acidenteAtual || ''));
-        const indexAtual = notasMusicais.indexOf(notaNormalizadaAtual);
-        if (indexAtual === -1) return;
+      if (indexOriginal === -1 || indexAtual === -1) {
+          console.error("Erro: Notas não encontradas no array de notas.");
+          return;
+      }
 
-        const novoIndice = (indexAtual + direcao + notasMusicais.length) % notasMusicais.length;
-        const novaNotaBase = notasMusicais[novoIndice];
+      // Calcular o novo índice e a nova nota base
+      const novoIndice = (indexAtual + direcao + notasMusicais.length) % notasMusicais.length;
+      const novaNotaBase = notasMusicais[novoIndice];
 
-        // Recalcula o novo tom com o sufixo original
-        const novoTom = novaNotaBase + sufixoAtual;
-        notaPrincipalSpan.textContent = novoTom;
+      // O sufixo deve ser o mesmo do tom original
+      const novoTom = novaNotaBase + sufixoOriginal;
+      notaPrincipalSpan.textContent = novoTom;
 
-        // Pega a nota base do tom original para calcular a diferença de semitons
-        const notaBaseOriginal = musica.tomOriginal.replace(/[mb#].*/, ''); 
-        const indexOriginal = notasMusicais.indexOf(normalizarNota(notaBaseOriginal));
+      // Calcular a diferença de semitons em relação ao tom original
+      let diferencaSemitons = novoIndice - indexOriginal;
+      if (diferencaSemitons > notasMusicais.length / 2) {
+          diferencaSemitons -= notasMusicais.length;
+      } else if (diferencaSemitons < -notasMusicais.length / 2) {
+          diferencaSemitons += notasMusicais.length;
+      }
 
-        // Calcula a diferença de semitons entre a nova nota e a nota original
-        const diferencaSemitons = novoIndice - indexOriginal;
-
-        cifraSpans.forEach(elemento => {
-            const cifraOriginal = elemento.getAttribute('data-cifra');
-            const novaCifra = transporAcorde(cifraOriginal, diferencaSemitons);
-            elemento.textContent = novaCifra;
-        });
+      cifraSpans.forEach(elemento => {
+          const cifraOriginal = elemento.getAttribute('data-cifra');
+          const novaCifra = transporAcorde(cifraOriginal, diferencaSemitons);
+          elemento.textContent = novaCifra;
+      });
     }
 
     function adicionarLetra() {
