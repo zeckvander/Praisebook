@@ -231,22 +231,39 @@
         return equivalentes[nota] || nota;
     }
 
-    function transporAcorde(acorde, semitons) {
-      const match = acorde.match(/^([A-G])(#|b)?(.*)/i);
-      if (!match) return acorde;
+    // Função auxiliar para transpor uma única nota (e seu sufixo)
+    function transporNota(notaComSufixo, semitons) {
+      const match = notaComSufixo.match(/^([A-G])(#|b)?(.*)/i);
+      if (!match) return notaComSufixo;
 
       let [, notaBase, acidente, sufixo] = match;
-      notaBase = notaBase.toUpperCase();
+      let notaNormalizada = normalizarNota(notaBase.toUpperCase() + (acidente || ''));
       
-      let notaNormalizada = normalizarNota(notaBase + (acidente || ''));
       let indexBase = notasMusicais.indexOf(notaNormalizada);
-      if (indexBase === -1) return acorde;
+      if (indexBase === -1) return notaComSufixo;
       
       indexBase = (indexBase + semitons + notasMusicais.length) % notasMusicais.length;
       let novaNotaBase = notasMusicais[indexBase];
 
       return novaNotaBase + sufixo;
     }
+
+    // Função principal para transpor o acorde inteiro
+    function transporAcorde(acorde, semitons) {
+        const partes = acorde.split('/');
+        const acordePrincipal = partes[0];
+        const notaDoBaixo = partes[1];
+        
+        const novoAcordePrincipal = transporNota(acordePrincipal, semitons);
+        
+        if (notaDoBaixo) {
+            const novaNotaDoBaixo = transporNota(notaDoBaixo, semitons);
+            return `${novoAcordePrincipal}/${novaNotaDoBaixo}`;
+        }
+        
+        return novoAcordePrincipal;
+    }
+
 
     // Letras iniciais - você pode deixar vazio ou preencher algumas
     const letras = {
@@ -434,7 +451,7 @@ O sangue de Jesus tem poder
 O sangue de Jesus tem poder
   <span data-cifra="D">D</span>                    <span data-cifra="G">G</span>
 O sangue de Jesus, o sangue de Jesus,
-  <span data-cifra="D">D">D</span>                  <span data-cifra="G">G</span>
+  <span data-cifra="D">D</span>                  <span data-cifra="G">G</span>
 O sangue de Jesus tem poder
 
   <span data-cifra="G">G</span>                        <span data-cifra="C">C</span>
@@ -454,7 +471,7 @@ Clamo a ti,ó meu Senhor,
 Clamo a ti, meu Salvador,
   <span data-cifra="Dm">Dm</span>        <span data-cifra="F">F</span>        <span data-cifra="C">C</span>
 Pelo teu sangue, que é vida,
-  <span data-cifra="G">G">G</span>           <span data-cifra="Am">Am</span>
+  <span data-cifra="G">G</span>           <span data-cifra="Am">Am</span>
 Ó bendito, vem me libertar.
 
   <span data-cifra="Am">Am</span>       <span data-cifra="G">G</span>      <span data-cifra="Am">Am</span>
