@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Praisebook - ICM</title>
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#a66" />
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #fafafa;
+      margin: 20px;
+      color: #222;
+    }
+    .logo-container {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .logo-container img {
+      max-width: 280px;
+      height: auto;
+      image-rendering: crisp-edges;
+    }
+    .top-bar {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .search-bar {
+      width: 100%;
+      max-width: 600px;
+    }
+    .search-bar input[type="text"] {
+      width: 100%;
+      padding: 12px 16px;
+      border-radius: 25px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+    .search-bar input[type="text"]:focus {
+      border-color: #a66;
+    }
+    .add-button,
+    .save-button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 24px;
+      color: #888;
+      transition: color 0.2s;
+    }
+    .add-button:hover,
+    .save-button:hover {
+      color: #a66;
+    }
+    .song-list {
+      max-width: 600px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgb(0 0 0 / 0.1);
+      padding: 16px 20px;
+    }
+    .song-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #eee;
+      padding: 12px 0;
+    }
+    .song-item:last-child {
+      border-bottom: none;
+    }
+    .song-info {
+      flex: 1;
+    }
+    .song-title {
+      font-weight: 600;
+      font-size: 18px;
+      margin: 0;
+    }
+    .song-actions {
+      display: flex;
+      gap: 12px;
+    }
+    .action-button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 18px;
+      color: #888;
+      transition: color 0.2s;
+    }
+    .action-button:hover {
+      color: #a66;
+    }
+    /* Modal */
+    #modalLetra {
+      display: none;
+      position: fixed;
+      top: 10%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+      max-width: 600px;
+      max-height: 80vh;
+      overflow-y: auto;
+      z-index: 1000;
+    }
+    #modalFundo {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 999;
+    }
+    #modalLetra button.close-btn {
+      float: right;
+      font-size: 24px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      line-height: 1;
+    }
+    #modalLetra h2 {
+      margin-top: 0;
+      margin-bottom: 1rem;
+    }
+    #modalLetra pre {
+      white-space: pre-wrap;
+      font-family: inherit;
+      font-size: 16px;
+      line-height: 1.5;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <div class="logo-container">
+    <img src="logo.png" alt="Igreja Cristã Maranata Logo" />
+  </div>
+
+  <div class="top-bar">
+    <div class="search-bar">
+      <input
+        id="search-input"
+        type="text"
+        placeholder="Qual hino de louvor você está procurando?"
+        wfd-id="id0"
+      />
+    </div>
+    <button class="add-button" title="Adicionar Hino" onclick="adicionarLetra()"
+      >📁</button
+    >
+    <button class="save-button" title="Salvar HTML atualizado" onclick="salvarHtml()"
+      >💾</button
+    >
+  </div>
+
+  <div class="song-list" id="listaMusicas"></div>
+
+  <!-- Modal da Letra -->
+  <div id="modalLetra" style="display: none;">
+    <button class="close-btn" onclick="fecharModal()">×</button>
+    <h2 id="tituloLetra"></h2>
+    <pre id="conteudoLetra"></pre>
+  </div>
+  <div id="modalFundo" onclick="fecharModal()" style="display: none;"></div>
+
+  <script>
+    // Letras iniciais - você pode deixar vazio ou preencher algumas
+    const letras = {
+      "C/C - Aquilo Que Fui Não Sou Mais": `Aquilo que fui não sou mais,
+Nem sou tudo o que devo ser;
+Já sou pela graça o que sou
+E ao vê-lo estou certo que vou
+Na Glória de Cristo viver.
+
+(Coro)
+Maranata, Maranata,
+Em Breve o Senhor Voltará;
+Maranata, Maranata,
+Ele mesmo virá nos buscar.
+
+Eu morto pensei que vivia,
+Já vivo e com Cristo morri;
+Para ele, estou ressussitado,
+Para o mundo, estou Crucificado;
+Minha vida em Jesus escondi.
+
+Minh'alma gozando riquezas,
+Tesouros que o mundo não dá,
+Caminha na doce esperança,
+Da Vida em eterna bonança,
+Na glória onde Jesus está.`,
+
+      // ... Você pode preencher as outras letras aqui
+    };
+
+    const lista = document.getElementById("listaMusicas");
+    const input = document.getElementById("search-input");
+
+    // Função para atualizar a lista visível conforme o objeto letras
+    function atualizarLista() {
+      lista.innerHTML = "";
+      const filtro = input.value.toLowerCase();
+      Object.keys(letras)
+        .filter((titulo) => titulo.toLowerCase().includes(filtro))
+        .forEach((titulo) => {
+          const div = document.createElement("div");
+          div.className = "song-item";
+          div.innerHTML = `
+          <div class="song-info">
+            <p class="song-title">${titulo}</p>
+          </div>
+          <div class="song-actions">
+            <button class="action-button" title="Music">&#127926;</button>
+            <button class="action-button" title="Text" onclick="abrirModalLetra('${titulo.replace(/'/g, "\\'")}')">T</button>
+            <button class="action-button" title="List">&#128221;</button>
+          </div>
+        `;
+          lista.appendChild(div);
+        });
+    }
+
+    input.addEventListener("input", atualizarLista);
+
+    // Mostrar letra no modal
+    function abrirModalLetra(titulo) {
+      const modal = document.getElementById("modalLetra");
+      const fundo = document.getElementById("modalFundo");
+      const tituloLetra = document.getElementById("tituloLetra");
+      const conteudoLetra = document.getElementById("conteudoLetra");
+
+      tituloLetra.textContent = titulo;
+      conteudoLetra.textContent = letras[titulo] || "Letra não encontrada.";
+
+      modal.style.display = "block";
+      fundo.style.display = "block";
+    }
+
+    function fecharModal() {
+      document.getElementById("modalLetra").style.display = "none";
+      document.getElementById("modalFundo").style.display = "none";
+    }
+
+    // Adicionar nova letra
+    function adicionarLetra() {
+      const tipo = prompt(
+        "Deseja adicionar:\n1 - Letra\n2 - Cifra\n3 - Partitura"
+      );
+      if (tipo !== "1") return alert("Atualmente só está implementado para Letra.");
+
+      const textoCompleto = prompt(
+        "Cole a letra do hino.\nA primeira linha será o título:"
+      );
+      if (!textoCompleto) return;
+
+      const linhas = textoCompleto.trim().split("\n");
+      const titulo = linhas[0].trim();
+      const letra = linhas.slice(1).join("\n").trim();
+
+      if (!titulo || !letra)
+        return alert("Formato inválido. A primeira linha deve ser o título.");
+
+      // Adiciona ao objeto letras
+      letras[titulo] = letra;
+
+      // Atualiza lista e alerta
+      atualizarLista();
+      alert(`Hino "${titulo}" adicionado com sucesso!`);
+    }
+
+    // Função para salvar o HTML atualizado (igual a seu código original)
+    function salvarHtml() {
+      let letrasStringEntries = [];
+      for (const [titulo, letra] of Object.entries(letras)) {
+        const letraEscapada = letra.replace(/`/g, "\\`");
+        letrasStringEntries.push(`"${titulo}": \`${letraEscapada}\``);
+      }
+      const letrasString = "const letras = {\n" + letrasStringEntries.join(",\n") + "\n};";
+
+      let pagina = document.documentElement.outerHTML;
+
+      const regex = /const letras = \{[\s\S]*?\};/;
+      pagina = pagina.replace(regex, letrasString);
+
+      const blob = new Blob([pagina], { type: "text/html;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "Praisebook_atualizado.html";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    // Atualizar músicas online (exemplo com URL externa)
+    async function atualizarMusicasOnline() {
+      const urlJSON = "https://seusite.com/musicas.json"; // Mude para sua URL real
+
+      try {
+        const response = await fetch(urlJSON, { cache: "no-store" });
+        if (!response.ok) throw new Error("Não foi possível buscar músicas online");
+        const musicasOnline = await response.json();
+
+        // Merge letras com músicas online
+        Object.assign(letras, musicasOnline);
+
+        atualizarLista();
+        console.log("Músicas atualizadas online.");
+      } catch (e) {
+        console.log("Offline ou erro ao buscar músicas:", e);
+      }
+    }
+
+    // Registrar service worker
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker
+        .register("sw.js")
+        .then(() => console.log("Service Worker registrado."))
+        .catch((err) => console.log("Erro ao registrar SW:", err));
+    }
+
+    // Inicializa lista e tenta atualizar online
+    atualizarLista();
+    atualizarMusicasOnline();
+  </script>
+</body>
+</html>
