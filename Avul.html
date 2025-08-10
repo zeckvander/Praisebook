@@ -110,8 +110,8 @@
       padding: 20px;
       border-radius: 10px;
       box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-      width: 80%; /* Ajuste para porcentagem */
-      max-width: 1200px; /* Limite a largura máxima */
+      width: 80%;
+      max-width: 1200px;
       max-height: 80vh;
       overflow-y: auto;
       z-index: 1000;
@@ -225,8 +225,8 @@ Na glória onde Jesus está.`,
             <p class="song-title">${titulo}</p>
           </div>
           <div class="song-actions">
-            <button class="action-button" title="Music">&#127926;</button>
             <button class="action-button" title="Text" onclick="abrirModalLetra('${titulo.replace(/'/g, "\\'")}')">T</button>
+            <button class="action-button" title="Chords">&#127926;</button>
             <button class="action-button" title="List">&#128221;</button>
           </div>
         `;
@@ -287,7 +287,7 @@ Na glória onde Jesus está.`,
       let letrasStringEntries = [];
       for (const [titulo, letra] of Object.entries(letras)) {
         const letraEscapada = letra.replace(/`/g, "\\`");
-        letrasStringEntries.push(`"${titulo}": \`${letras[titulo]}\``);
+        letrasStringEntries.push(`"${titulo}": \`${letraEscapada}\``);
       }
       const letrasString = "const letras = {\n" + letrasStringEntries.join(",\n") + "\n};";
 
