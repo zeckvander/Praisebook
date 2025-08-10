@@ -230,8 +230,7 @@
     function normalizarNota(nota) {
         return equivalentes[nota] || nota;
     }
-
-    // Função auxiliar para transpor uma única nota (e seu sufixo)
+    
     function transporNota(notaComSufixo, semitons) {
       const match = notaComSufixo.match(/^([A-G])(#|b)?(.*)/i);
       if (!match) return notaComSufixo;
@@ -247,8 +246,7 @@
 
       return novaNotaBase + sufixo;
     }
-
-    // Função principal para transpor o acorde inteiro
+    
     function transporAcorde(acorde, semitons) {
         const partes = acorde.split('/');
         const acordePrincipal = partes[0];
@@ -265,7 +263,6 @@
     }
 
 
-    // Letras iniciais - você pode deixar vazio ou preencher algumas
     const letras = {
       "C/C - Aquilo Que Fui Não Sou Mais": `Aquilo que fui não sou mais,
 Nem sou tudo o que devo ser;
@@ -542,7 +539,6 @@ Venha sobre nós
   <span data-cifra="F">F</span>          <span data-cifra="G">G</span>          <span data-cifra="C">C</span>
 Seja sobre nós a Tua graça`
       }
-      // ... Adicione outras cifras aqui
     };
 
     function atualizarLista() {
@@ -622,6 +618,8 @@ Seja sobre nós a Tua graça`
     }
 
     function mudarTom(direcao) {
+        console.log("Botão de transposição clicado. Direção:", direcao);
+
         const notaPrincipalSpan = document.getElementById('nota-principal');
         const cifraSpans = document.querySelectorAll('#modalCifra [data-cifra]');
         const tituloMusica = document.getElementById('tituloCifra').textContent;
@@ -631,7 +629,7 @@ Seja sobre nós a Tua graça`
         const indiceAtual = notasMusicais.indexOf(normalizarNota(notaAtual));
 
         if (indiceAtual === -1) {
-            console.error("Nota principal não encontrada no array de notas.");
+            console.error("Erro: Nota principal não encontrada no array de notas.");
             return;
         }
 
@@ -641,10 +639,13 @@ Seja sobre nós a Tua graça`
 
         const diferencaSemitons = notasMusicais.indexOf(novaNota) - notasMusicais.indexOf(normalizarNota(tomOriginal));
 
+        console.log("Transpondo de", tomOriginal, "para", novaNota, "- Diferença:", diferencaSemitons);
+
         cifraSpans.forEach(elemento => {
             const cifraOriginal = elemento.getAttribute('data-cifra');
             const novaCifra = transporAcorde(cifraOriginal, diferencaSemitons);
             elemento.textContent = novaCifra;
+            console.log(`Cifra original: ${cifraOriginal} -> Nova cifra: ${novaCifra}`);
         });
     }
 
