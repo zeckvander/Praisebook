@@ -4,59 +4,97 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>PRAISEBOOK - Tela Inicial</title>
-
-  <!-- Manifest -->
   <link rel="manifest" href="manifest.json" />
-
-  <!-- Ícone -->
-  <link rel="icon" href="logo.png" type="image/png" />
-
-  <!-- Estilos básicos -->
   <style>
-    body {
-      font-family: Arial, sans-serif;
+    * {
       margin: 0;
       padding: 0;
-      background: #f5f5f5;
-      text-align: center;
+      box-sizing: border-box;
     }
-    header {
-      background: #222;
-      color: #fff;
-      padding: 15px;
-      font-size: 1.5rem;
-    }
-    main {
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f5f5f7;
+      color: #222;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      align-items: center;
+      justify-content: center;
       padding: 20px;
+      gap: 40px;
     }
-    footer {
-      background: #222;
-      color: #fff;
-      padding: 10px;
-      font-size: 0.8rem;
+
+    header {
       position: fixed;
-      bottom: 0;
+      top: 0;
       left: 0;
       width: 100%;
+      background: #a66;
+      color: white;
+      font-weight: 700;
+      font-size: 1.8rem;
+      padding: 18px 0;
+      text-align: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+      letter-spacing: 2px;
+      user-select: none;
+      z-index: 10;
     }
-    /* Botão 🍪 */
-    #clearSW {
-      position: fixed;
-      bottom: 15px;
+
+    /* Botão 🍪 no canto direito */
+    #clearDataBtn {
+      position: absolute;
       right: 15px;
-      z-index: 999;
-      background: #f90;
-      color: #fff;
-      padding: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: transparent;
       border: none;
-      border-radius: 50%;
-      font-size: 22px;
+      font-size: 1.5rem;
       cursor: pointer;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-      transition: background 0.3s;
+      color: white;
+      padding: 5px;
+      transition: transform 0.2s;
     }
-    #clearSW:hover {
-      background: #d77f00;
+
+    #clearDataBtn:hover {
+      transform: translateY(-50%) scale(1.2);
+    }
+
+    main {
+      margin-top: 70px;
+      display: flex;
+      gap: 30px;
+      flex-wrap: wrap;
+      justify-content: center;
+      width: 100%;
+      max-width: 420px;
+    }
+
+    button {
+      flex: 1 1 180px;
+      padding: 20px 0;
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: white;
+      background-color: #a66;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 6px 12px rgba(166, 102, 102, 0.4);
+      transition: background-color 0.3s, box-shadow 0.3s, transform 0.2s;
+      user-select: none;
+    }
+
+    button:hover {
+      background-color: #8a5151;
+      box-shadow: 0 8px 16px rgba(138, 81, 81, 0.6);
+      transform: translateY(-3px);
+    }
+
+    button:active {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(138, 81, 81, 0.5);
     }
   </style>
 </head>
@@ -64,60 +102,76 @@
 
   <header>
     PRAISEBOOK
+    <button id="clearDataBtn" title="Limpar cookies, cache e SW">🍪</button>
   </header>
 
   <main>
-    <h1>Bem-vindo ao Praisebook 🎶</h1>
-    <p>Selecione uma música para começar.</p>
-    <!-- Exemplo de link -->
-    <a href="song/1">Música 1</a> | <a href="song/2">Música 2</a>
+    <button type="button" onclick="window.location.href='Coletanea_trad.html'">Coletânea</button>
+    <button type="button" onclick="window.location.href='Avul.html'">Avulsos</button>
+    <button type="button" onclick="window.location.href='Cias.html'">Cias</button>
   </main>
 
-  <footer>
-    © 2025 Praisebook - Todos os direitos reservados
-  </footer>
-
-  <!-- Botão para limpar cache e SW -->
-  <button id="clearSW">🍪</button>
-
-  <!-- Script para registrar o Service Worker -->
   <script>
-    if ("serviceWorker" in navigator) {
-      window.addEventListener("load", () => {
-        navigator.serviceWorker.register("/service-worker.js")
-          .then(reg => console.log("Service Worker registrado:", reg.scope))
-          .catch(err => console.error("Erro ao registrar SW:", err));
-      });
+    // Registrar o Service Worker
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js')
+        .then(() => console.log("✅ Service Worker registrado"))
+        .catch(err => console.error("❌ Erro no SW:", err));
     }
 
-    // Função para limpar cache e Service Worker
-    document.getElementById("clearSW").addEventListener("click", async () => {
-      // Apagar caches
-      const cacheNames = await caches.keys();
-      await Promise.all(cacheNames.map(name => caches.delete(name)));
-
-      // Desregistrar Service Worker
-      if ("serviceWorker" in navigator) {
-        const registrations = await navigator.serviceWorker.getRegistrations();
-        for (let reg of registrations) {
-          await reg.unregister();
+    // Função para checar atualizações do app
+    async function checarAtualizacoes() {
+      try {
+        const res = await fetch('/atualizacoes');
+        if (!res.ok) return;
+        const dados = await res.json();
+        const versaoLocal = localStorage.getItem('versaoApp') || '0';
+        if (dados.versao > versaoLocal) {
+          console.log("📥 Nova versão disponível, atualizando...");
+          localStorage.setItem('versaoApp', dados.versao);
+          window.location.reload();
         }
+      } catch {
+        console.warn("Sem conexão para verificar atualização");
       }
+    }
 
-      // Limpar cookies
+    if (navigator.onLine) {
+      checarAtualizacoes();
+      setInterval(checarAtualizacoes, 30000);
+    }
+
+    // Função para limpar tudo (cookies, cache, storage e SW)
+    document.getElementById('clearDataBtn').addEventListener('click', async () => {
+      // Apagar cookies
       document.cookie.split(";").forEach(cookie => {
-        document.cookie = cookie
-          .replace(/^ +/, "")
-          .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+        const name = cookie.split("=")[0].trim();
+        document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;`;
       });
+
+      // Apagar cache do SW
+      if ('caches' in window) {
+        const keys = await caches.keys();
+        await Promise.all(keys.map(key => caches.delete(key)));
+      }
 
       // Limpar localStorage e sessionStorage
       localStorage.clear();
       sessionStorage.clear();
 
-      // Recarregar página limpa
-      location.reload(true);
+      // Desinstalar Service Workers
+      if ('serviceWorker' in navigator) {
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        for (let registration of registrations) {
+          await registration.unregister();
+        }
+      }
+
+      alert("🍪 Tudo limpo! (cookies, cache e service worker)");
+      location.reload();
     });
   </script>
+
+  <script src="./script.js"></script>
 </body>
 </html>
