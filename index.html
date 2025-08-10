@@ -42,6 +42,25 @@
       z-index: 10;
     }
 
+    /* Botão 🍪 no canto direito */
+    #clearDataBtn {
+      position: absolute;
+      right: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: transparent;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: white;
+      padding: 5px;
+      transition: transform 0.2s;
+    }
+
+    #clearDataBtn:hover {
+      transform: translateY(-50%) scale(1.2);
+    }
+
     main {
       margin-top: 70px;
       display: flex;
@@ -81,13 +100,17 @@
 </head>
 <body>
 
-  <header>PRAISEBOOK</header>
+  <header>
+    PRAISEBOOK
+    <button id="clearDataBtn" title="Limpar cookies, cache e SW">🍪</button>
+  </header>
 
   <main>
     <button type="button" onclick="window.location.href='Coletanea_trad.html'">Coletânea</button>
     <button type="button" onclick="window.location.href='Avul.html'">Avulsos</button>
     <button type="button" onclick="window.location.href='Cias.html'">Cias</button>
   </main>
+
   <script>
     // Registrar o Service Worker
     if ('serviceWorker' in navigator) {
@@ -106,20 +129,49 @@
         if (dados.versao > versaoLocal) {
           console.log("📥 Nova versão disponível, atualizando...");
           localStorage.setItem('versaoApp', dados.versao);
-          window.location.reload(); // recarrega a página
+          window.location.reload();
         }
       } catch {
         console.warn("Sem conexão para verificar atualização");
       }
     }
 
-    // Checar atualizações a cada 30 segundos, se online
     if (navigator.onLine) {
       checarAtualizacoes();
       setInterval(checarAtualizacoes, 30000);
     }
+
+    // Função para limpar tudo (cookies, cache, storage e SW)
+    document.getElementById('clearDataBtn').addEventListener('click', async () => {
+      // Apagar cookies
+      document.cookie.split(";").forEach(cookie => {
+        const name = cookie.split("=")[0].trim();
+        document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;`;
+      });
+
+      // Apagar cache do SW
+      if ('caches' in window) {
+        const keys = await caches.keys();
+        await Promise.all(keys.map(key => caches.delete(key)));
+      }
+
+      // Limpar localStorage e sessionStorage
+      localStorage.clear();
+      sessionStorage.clear();
+
+      // Desinstalar Service Workers
+      if ('serviceWorker' in navigator) {
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        for (let registration of registrations) {
+          await registration.unregister();
+        }
+      }
+
+      alert("🍪 Tudo limpo! (cookies, cache e service worker)");
+      location.reload();
+    });
   </script>
-  
+
   <script src="./script.js"></script>
 </body>
 </html>
