@@ -1,3 +1,5 @@
+Script coletanea_trad
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -99,8 +101,8 @@
     .action-button:hover {
       color: #a66;
     }
-    /* Estilos do Modal */
-    .modal {
+    /* Modal */
+    #modalLetra {
       display: none;
       position: fixed;
       top: 10%;
@@ -110,13 +112,13 @@
       padding: 20px;
       border-radius: 10px;
       box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-      width: 90%;
-      max-width: 800px;
+      width: 80%;
+      max-width: 1200px;
       max-height: 80vh;
       overflow-y: auto;
       z-index: 1000;
     }
-    .modal-backdrop {
+    #modalFundo {
       display: none;
       position: fixed;
       top: 0;
@@ -126,7 +128,7 @@
       background: rgba(0, 0, 0, 0.5);
       z-index: 999;
     }
-    .modal button.close-btn {
+    #modalLetra button.close-btn {
       float: right;
       font-size: 24px;
       border: none;
@@ -134,45 +136,16 @@
       cursor: pointer;
       line-height: 1;
     }
-    .modal h2 {
+    #modalLetra h2 {
       margin-top: 0;
       margin-bottom: 1rem;
     }
-    .modal pre {
+    #modalLetra pre {
       white-space: pre-wrap;
       font-family: inherit;
       font-size: 16px;
       line-height: 1.5;
       color: #333;
-    }
-    /* Estilos para o Modal de Cifra */
-    #modalCifra pre {
-      font-family: monospace;
-      font-size: 14px;
-      line-height: 1.2;
-    }
-    .cifra-container {
-      display: flex;
-      justify-content: flex-start;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 15px;
-    }
-    .cifra-container p {
-      margin: 0;
-      font-weight: bold;
-    }
-    .cifra-container button {
-      padding: 4px 8px;
-      font-size: 1em;
-      cursor: pointer;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      background-color: #f0f0f0;
-    }
-    .cifra {
-      color: #0066cc;
-      font-weight: bold;
     }
   </style>
 </head>
@@ -187,32 +160,22 @@
         id="search-input"
         type="text"
         placeholder="Qual hino procura?"
+        wfd-id="id0"
       />
     </div>
   </div>
 
   <div class="song-list" id="listaMusicas"></div>
 
-  <div id="modalLetra" class="modal">
-    <button class="close-btn" onclick="fecharModal('modalLetra')">×</button>
+  <div id="modalLetra" style="display: none;">
+    <button class="close-btn" onclick="fecharModal()">×</button>
     <h2 id="tituloLetra"></h2>
     <pre id="conteudoLetra"></pre>
   </div>
-  
-  <div id="modalCifra" class="modal">
-    <button class="close-btn" onclick="fecharModal('modalCifra')">×</button>
-    <h2 id="tituloCifra"></h2>
-    <div class="cifra-container">
-        <p>Tom: <span id="nota-principal" class="cifra"></span></p>
-        <button onclick="mudarTom(-1)">-</button>
-        <button onclick="mudarTom(1)">+</button>
-    </div>
-    <pre id="conteudoCifra"></pre>
-  </div>
-
-  <div id="modalFundo" class="modal-backdrop" onclick="fecharModal('todos')"></div>
+  <div id="modalFundo" onclick="fecharModal()" style="display: none;"></div>
 
   <script>
+    // Letras iniciais - você pode deixar vazio ou preencher algumas
     const letras = {
       "C/C - Aquilo Que Fui Não Sou Mais": `Aquilo que fui não sou mais,
 Nem sou tudo o que devo ser;
@@ -238,7 +201,7 @@ Caminha na doce esperança,
 Da Vida em eterna bonança,
 Na glória onde Jesus está.`,
 
-"01 - O Sangue de Jesus Tem Poder": `O sangue de Jesus tem poder
+  "01 - O Sangue de Jesus Tem Poder": `O sangue de Jesus tem poder
 Poder que a mim pode valer
 Se comunhão não posso eu sentir, senhor
 Derrama do teu sangue remidor
@@ -256,66 +219,925 @@ De ti necessito muito amor
 Pelo poder que há em teu sangue remidor
 Ó vem purificar-me, meu senhor`,
 
-"02 - O sangue de Jesus tem poder para Salvar": `o sangue de Jesus tem poder
-o sangue de Jesus tem poder
-o sangue de Jesus, o sangue de Jesus,
-o sangue de Jesus tem poder
+  "02 - O sangue de Jesus tem poder para Salvar": `o sangue de Jesus tem poder
+  o sangue de Jesus tem poder
+  o sangue de Jesus, o sangue de Jesus,
+  o sangue de Jesus tem poder
   
-o sangue de Jesus tem poder para salvar
-o sangue de Jesus tem poder para curar
-o sangue de Jesus, o sangue de Jesus
-tem poder para o oprimido libertar`,
-    };
+  o sangue de Jesus tem poder para salvar
+  o sangue de Jesus tem poder para curar
+  o sangue de Jesus, o sangue de Jesus
+  tem poder para o oprimido libertar`,
 
-    const cifras = {
-      "C/C - Aquilo Que Fui Não Sou Mais": `  <span data-cifra="Em">Em</span>                    <span data-cifra="C">C</span>
-Aquilo que fui não sou mais
-                         <span data-cifra="B">B</span>
-Nem sou tudo o que devo ser
-                         <span data-cifra="Am">Am</span>
-Já sou pela graça o que sou
-                            <span data-cifra="C">C</span>
-E ao vê-lo estou certo que vou
-   <span data-cifra="B">B</span>                  <span data-cifra="Em">Em</span>   <span data-cifra="E">E</span>
-Na Glória de Cristo viver
+  "03 - Clamo a Ti": `Clamo a ti,ó meu senhor,
+  Clamo a ti, meu salvador,
+  Pelo teu sangue, que é vida,
+  Ó bendito, vem me libertar.
+  
+  Clamo a ti,ó meu senhor,
+  Clamo a ti, meu salvador,
+  Pelo teu sangue, que é vida,
+  Ó bendito, vem me libertar.
+  
+  Quando além do véu entrar,
+  Irei te dar todo o meu ser
+  Em tua presença, te adorar,
+  Te bendizer.
+  
+  Clamo a ti,ó meu senhor,
+  Clamo a ti, meu salvador,
+  Pelo teu sangue, que é vida,
+  Ó bendito, vem me libertar.`,
+
+  "04 - Quando Te Prostrares": `Quando te prostrares diante de Deus
+  Lembra que Jesus está contigo
+  Pede seu auxílio, pede teu perdão
+  Lembra que Jesus é teu abrigo
+  
+  Quando te prostrares diante de Deus
+  Lembra que Jesus está contigo
+  Pede seu auxílio, pede teu perdão
+  Lembra que Jesus é teu abrigo
+  
+  Deixa que o Senhor
+  Mude o teu viver
+  Lembra que Jesus é teu amigo
+  
+  Venha sobre nós (ó Deus)
+  Venha sobre nós
+  Seja sobre nós a Tua graça
+  
+  Venha sobre nós (ó Deus)
+  Venha sobre nós
+  Seja sobre nós a Tua graça`,
+
+  "05 - Clamando estou": `Clamando estou
+  Oh, meu Jesus
+  Por Teu sangue remidor
+  Socorro eu sei, que mandarás
+  E livramento a mim
+  
+  Teu sangue puro derramaste
+  Para me purificar
+  E então adorarei a Ti
+  Oh, meu Senhor.`,
+
+  "06 - Jesus, ó Meu Jesus": `Jesus, ó meu jesus,
+  Nesta hora me chego a ti
+  Pra clamar pelo teu sangue
+  E sentir-te perto de mim
+  
+  Ó dá-me libertação
+  E muita comunão,
+  E permite, ó senhor,
+  Que eu seja usado
+  Em tuas mãos.
+  
+  Ó dá-me libertação
+  E muita comunão,
+  E permite, ó senhor,
+  Que eu seja usado
+  Em tuas mãos.`,
+
+  "07 - Nesta Hora em Oração": `Nesta hora em oração
+  Pedimos o perdão no sangue de Jesus
+  Nesta hora em oração
+  Buscamos comunhão pra te adorar
+  
+  Abençoa-nos, senhor
+  Derrama sobre nós tua paz
+  Abençoa-nos, senhor
+  Derrama sobre nós teu amor
+  
+  Instrumentos
+  
+  Repete o hino`,
+
+  "08 - Pelo Sangue de Jesus": `Igreja Cristã Maranata
+  
+  Pelo Sangue de Jesus
+  Clamo a ti, meu Senhor,
+  Nele há perdão, paz, comunhão,
+  Vida para o meu ser!
+  
+  Nos teus átrios quero entrar
+  Coberto por este sangue,
+  Para tua glória ver
+  E te adorar!
+  
+  Repete o hino`,
+
+  "09 - Senhor, Me Chego a Ti": `Senhor, me chego a ti
+  Nesta hora de oração
+  Senhor, me chego a ti
+  Pra pedir-te mais comunhão e amor
+  Humilde e fraco sou
+  Faze-me viver na tua luz
+  Liberta-me, Senhor
+  Ó vem passar o teu sangue
+  E purifica-me, Senhor`,
+
+  "10 - Vamos Lavar As Vestes": `Vamos lavar as vestes
+  No sangue do cordeiro.
+  Vamos lavar as vestes
+  No sangue do cordeiro.
+  Quando jesus vier naquele grande dia,
+  As vestes estando limpas,
+  Temos paz e alegria.`,
+
+  "11 - Reveste, Senhor, teu povo": `Reveste, Senhor, teu povo
+  Reveste, Senhor, teu povo
+  Com o sangue da cruz
+  O sangue de Jesus
+  Reveste, senhor, teu povo
+  
+  Reveste, Senhor, teu povo
+  Reveste, Senhor, teu povo
+  Com o sangue da cruz
+  O sangue de Jesus
+  Reveste, senhor, teu povo`,
+
+  "12 - Há vitória para mim": `Há vitória para mim
+  há vitória para mim
+  pelo Sangue do Cordeiro
+  há vitória para mim
+  
+  vencer, vencer, vencer, vencer
+  pelo Sangue do Cordeiro
+  eu irei vencer.`,
+
+  "13 - Põe teu sangue sobre mim": `Põe teu sangue sobre mim
+  Põe teu sangue sobre mim
+  Porção dobrada,
+  Ó Senhor me dá!
+  Põe teu sangue sobre mim`,
+
+  "14 - Em teu altar, Senhor": `em teu altar Senhor
+  entrego minha vida
+  em teu altar, Senhor
+  purifica minha vida
+  com o sangue
+  do cordeiro
+  minha vida entrego em teu altar
+  
+  Repete o hino`,
+
+  "15 - Clamarei, Clamarei": `Clamarei, Clamarei
+Clamarei, clamarei
+Pelo sangue de Jesus;
+Ele é paz e segurança,
+Alegria, vida e luz.`,
+
+    "16 - Se Andarmos na Luz": `Se Andarmos na Luz
+Como na luz ele está
+Se andarmos na luz
+Como na luz ele está
+Temos comunhão com o senhor
+E tambem com os irmãos,
+Se andarmos na luz
+Como na luz ele está
+
+E assim o sangue de Jesus
+Tem poder para salvar
+Tem poder para curar,
+Tem poder para perdoar
+E tambem purificar.
+
+Repetir a 2º Estrofe.`,
+
+"17 - Em tua presença entramos": `Em tua presença entramos
+Clamando a ti, ó Senhor,
+Lava-nos com o teu sangue,
+Renova em nós teu amor.
+
+Com teu Espírito Santo
+Vem entre nós presidir.
+Seja este culto um incenso
+Que possa aos céus subir.
+
+Em teu altar entregamos
+As nossas vidas, Senhor,
+De coração ofertamos
+A ti o nosso louvor
+
+Ó Cristo vivo, revela
+Tua presença entre nós,
+Com tua graça opera,
+Faze-nos ouvir a tua voz.
+
+Em tua presença entramos
+Clamando a ti, ó Senhor
+Lava-nos com o teu sangue,
+Renova em nós teu amor.`,
+
+"18 - Prostado estou": `Prostado estou
+Diante de ti,
+Perdão imploro
+Por meu pecar,
+É grande a minha culpa,
+Mas és amor!
+Escuta a voz
+Do meu clamor.`,
+
+"19 - Teu povo clama em oração": `Teu povo clama em oração
+Pelo teu sangue, libertação,
+Pelo pecado, misericórdia,
+Teu povo clama, senhor Jesus.
+
+Teu povo clama em oração
+Pelo teu sangue, libertação,
+Pelo pecado, misericórdia,
+Teu povo clama, senhor Jesus.`,
+
+"20 - O teu pecado tu queres deixar?": `O teu pecado tu queres deixar?
+No sangue há poder, sim, há poder
+Queres do mal a vitória ganhar?
+Seu sangue tem este poder!
 
 (CORO)
-   <span data-cifra="Am">Am</span>  <span data-cifra="D">D</span>      <span data-cifra="G">G</span>  <span data-cifra="C">C</span>
-Maranata, Maranata
-  <span data-cifra="F#°">F#°</span>          <span data-cifra="B7">B7</span>      <span data-cifra="Em">Em</span>  <span data-cifra="E">E</span>
-Em breve o Senhor voltará
-   <span data-cifra="Am">Am</span>  <span data-cifra="D">D</span>      <span data-cifra="G">G</span>  <span data-cifra="C">C</span>
-Maranata, Maranata
-   <span data-cifra="F#°">F#°</span>       <span data-cifra="B7">B7</span>       <span data-cifra="Em">Em</span>   <span data-cifra="Am">Am</span>   <span data-cifra="Em">Em</span>
-Ele mesmo virá nos buscar
+Há poder, sim, força e vigor
+Neste sangue de Jesus
+Há poder, sim, no bom Salvador
+Oh! Confia no Cristo da cruz
 
-  <span data-cifra="Em">Em</span>                  <span data-cifra="C">C</span>
-Eu morto pensei que vivia
-                       <span data-cifra="B">B</span>
-Já vivo e com Cristo morri
-                        <span data-cifra="Am">Am</span>
-Para ele, estou ressuscitado
-                           <span data-cifra="C">C</span>
-Para o mundo, estou crucificado
-     <span data-cifra="B">B</span>                   <span data-cifra="Em">Em</span>  <span data-cifra="E">E</span>
-Minha vida em Jesus escondi
+Queres os vícios abandonar?
+No sangue há poder, sim, há poder
+Confia em Cristo para te curar
+Seu sangue tem este poder!
 
-  <span data-cifra="Em">Em</span>                <span data-cifra="C">C</span>
-Minh'alma gozando riquezas
-                          <span data-cifra="B">B</span>
-Tesouros que o mundo não dá
-                    <span data-cifra="Am">Am</span>
-Caminha na doce esperança
-                    <span data-cifra="C">C</span>
-Da Vida em eterna bonança
-  <span data-cifra="B">B</span>                    <span data-cifra="Em">Em</span>  <span data-cifra="E">E</span>
-Na glória onde Jesus está.`,
+Queres pureza pra'ra teu coração?
+No sangue há poder, sim, há poder
+Mais lealdade, mais consagração
+Seu sangue tem este poder!
+
+Queres de Cristo a mensagem levar?
+No sangue há poder, sim, há poder
+Queres co'os anjos, na glória cantar?
+Seu sangue tem este poder!`,
+
+"21 - Nesta hora, de clamor": `Nesta hora, de clamor  (M)
+Pelo sangue de Jesus   (H)
+Necessitado, dependente
+Me coloco aos teus pés ó Pai
+
+(CORO)
+Dá-me o pão cotidiano
+Esse pão és tu Jesus
+Tua paz é o meu alimento
+Dá-me de ti, Senhor
+
+As riquezas que encontro em ti
+São para mim meu bem maior
+Em ti espero, em ti confio
+De ti vem minha salvação
+
+Instrumentos
+
+Na eternidade habitarei
+Lá verei meu grande Rei
+Ruas de ouro, rios de cristal
+Glória ao seu Santo Espírito.
+
+Final:
+Ruas de ouro, rios de cristal
+Glória ao seu Santo Espírito.`,
+
+"22 - Bendito seja o Cordeiro": `Bendito seja o Cordeiro
+Que na cruz por nós padeceu
+Bendito seja o Seu sangue
+Que por nós ali Ele verteu
+Eis que nesse sangue lavados
+Com roupas que tão alvas são
+Os pecadores remidos
+Que perante seu Deus já estão
+
+(CORO)
+Alvo mais que a neve
+Alvo mais que a neve
+Sim nesse sangue lavado
+Mais alvo que a neve serei
+
+Quão espinhosa coroa
+Que Jesus por nós suportou
+Oh! Quão profundas as chagas
+Que nos provam o quanto Ele amou
+Eis que nessas chagas, pureza
+Para o maior pecador
+Pois que mais alvo que a neve
+O Teu sangue nos torna Senhor
+
+Se nós a Ti confessarmos
+E seguirmos na Sua luz
+Tu não somente perdoar
+Purificas também, ó Jesus
+Sim, e de todo pecado
+Que maravilha de amor
+Pois, que mais alvo que a neve
+O Teu sangue nos torna, Senhor.`,
+
+"23 - Senhor, Ouve a Minha Oração": `Senhor, Ouve a Minha Oração
+E dá-me plena comunhão
+Liberta-me do meu vil pecado
+Senhor, Ouve a Minha Oração
+
+Transborda, inunda o meu ser
+Transforma, faze em mim teu querer
+Derrama do sangue de Cristo
+Senhor, Ouve a Minha Oração.`,
+
+"24 - Eis O Cordeiro de Deus": `Eis O Cordeiro de Deus
+Que tira o pecado do mundo, 
+que morreu no meu lugar
+então pode me perdoar
+
+(CORO)
+Clamo agora, pedindo
+vem perdoar (vem perdoar)
+purificar (purificar), 
+vem transformar, e renovar, 
+vem restaurar.
+
+Diante do Teu altar, 
+deixo a minha ansiedade,
+e no sangue de Jesus tenho vida.
+
+Final:
+Vem restaurar!`,
+
+"25 - Senhor, a ti clamo": `Senhor, a ti clamo,
+Inclina os teus ouvidos
+À minha voz; lava a minh'alma
+Com o sangue de Jesus,
+Suplico, Senhor
+Dá-me um cântico novo,
+Faz meu louvor tocar Jesus;
+Ó Deus, inclina os teus
+Ouvidos e ouve a minha voz!`,
+
+"26 - Seja só o Senhor louvado aqui": `Seja só o Senhor louvado aqui, aleluia!
+Neste abençoado maanaim, aleluia!
+Pois presente ele está,
+Quer a todos abençoar,
+Sua graça derramar, aleluia!
+E pelo teu sangue clamamos, Senhor, aleluia!
+Teu precioso sangue remidor, aleluia!
+Põe teu sangue sobre mim,
+De todo o mal livra-me e assim,
+Gozo então terei sem fim, aleluia!`,
+
+"27 - Cordeiro eterno": `Cordeiro eterno,
+Vieste pra me dar
+Tua vida, teu sangue,
+Pra que eu pudesse ter
+A vida eterna e o perdão,
+A cura, a paz, libertação,
+Cordeiro eterno de Deus.
+
+E hoje teu sangue
+está agindo em mim,
+Limpando, curando,
+Mudando o meu ser;
+
+Cantar 2x
+Oh! Que poder e vida há
+No sangue que Jesus verteu,
+Cordeiro eterno de Deus.
+
+Final: 
+Cordeiro eterno de Deus.`,
+
+"28 - O poder do sangue de Jesus": `O poder do sangue de Jesus
+Há de me purificar,
+Meu pecado perdoar;
+O poder do sangue de Jesus
+Dá-me plena comunhão,
+Traz-me a revelação.
+
+Coro
+Estou liberto na presença do Senhor,
+Nos seus átrios hei de entrar,
+Com louvor glorificar;
+Sua glória resplandece no altar,
+
+Seu espírito me alcança com amor.
+O poder do sangue de Jesus
+Faz-me caminhar na luz,
+Bem seguro me conduz.
+
+Final:
+Há poder no sangue de Jesus 
+Há poder no sangue de Jesus`,
+
+"29 - Transborda-me, Senhor": `Transborda-me, Senhor,
+Dá-me comunhão;
+Sentir tua presença eu quero, ó pai;
+Fala ao meu coração,
+No sangue há vida,
+Há libertação,
+Segurança e paz,
+Toca-me, Senhor.
+
+Repetir o hino
+
+Final:
+Há libertação,
+Segurança e paz,
+Toca-me, Senhor.`,
+
+"30 - Oh! que precioso sangue": `Oh! que precioso sangue
+O Senhor verteu,
+Quando para resgatar-nos
+Padeceu!
+Oh! que precioso sangue,
+Sangue de Jesus,
+Que por nós foi derramado
+Sobre a cruz!
+
+Oh! que precioso sangue,
+Sacrificial,
+Pois apaga de nossa alma
+Todo o mal!
+Oh! que precioso sangue,
+Fala-nos de paz,
+Tudo quanto a lei exige
+Satisfaz!`,
+
+"31 - Junto a ti suplico, ó pai": `Junto a ti suplico, ó pai,
+Pelo sangue de Jesus;
+Curvo-me diante de ti,
+Ouve-me, ó meu Senhor.
+Há em mim sinceridade
+Em querer libertação;
+Lava-me com este sangue,
+Dá-me plena comunhão.`,
+
+"32 - O sangue de Jesus, vertido ali na cruz": `O sangue de Jesus, vertido ali na cruz,
+Tem poder para me purificar.
+O sangue de Jesus, vertido ali na cruz,
+Tem poder para me libertar.
+Põe teu sangue em mim, Senhor,
+Põe teu sangue em mim!
+E dá-me libertação
+E uma plena comunhão.`,
+
+"33 - Eu me prostro em teu altar": `Eu me prostro em teu altar
+Nesta hora de clamor,
+Lembro-me de tua dor
+Que sofreste por me amar,
+O teu sangue tem poder
+Para me purificar.
+
+Nesse sangue há comunhão,
+Cura e libertação;
+Visita-me com tua paz,
+Teu espírito reluz,
+Vivifica-me, Jesus,
+E minh'alma satisfaz.
+Teu espírito reluz,
+Vivifica-me, Jesus,
+E minh'alma satisfaz.
+
+Final: 
+E minh'alma satisfaz.`,
+
+"34 - Quando buscamos": `Quando buscamos a ti, Senhor,
+E com fé pedimos teu perdão,
+Confessamos nossos pecados,
+Vem com teu sangue nos purificar.
+
+Coro
+Renova a nossa comunhão (nossa comunhão)
+Renova a fé em nossos corações
+Para que sejamos mais fiéis a ti
+E entreguemos nossas vidas (nossas vidas)
+Cada vez mais no teu altar.
+
+Os céus se abrem e com poder
+Os anjos trazem respostas do Senhor;
+Glorificamos ao nosso Deus
+Que está vivo e Reina entre nós.
+
+Final: 
+Cada vez mais no teu altar.`,
+
+"35 - A meu Senhor": `A meu Senhor e Cristo Jesus
+Venho agora clamar;
+Vem com teu sangue lavar minhas vestes,
+Vem me purificar.
+
+Cantar 2x
+
+Vem libertar a minh'alma,
+Jesus, de mim vem cuidar;
+Vem com teu sangue
+Lavar minhas vestes,
+Vem me purificar.
+
+Final: 
+Vem me purificar.`,
+
+"36 - Crucificado foi meu Jesus": `Crucificado foi meu Jesus,
+Dor e opróbrio sofreu na cruz,
+Caminho novo nos consagrou
+Ao santuário do Rei Senhor.
+
+Coro
+Na sua presença eu entro assim,
+Crendo que o sangue verteu por mim;
+Vem ser propício ao pecador,
+Já me alcançaste por teu amor.
+
+Meu triste estado ele mudou,
+Em nova vida me transformou,
+Confesso agora o seu perdão,
+Confiando a ele meu coração.`,
+
+"37 - Nesta hora esqueço o mundo": `Nesta hora esqueço o mundo,
+Toda a preocupação,
+Me coloco em tua presença,
+Sou carente do teu perdão.
+Considero o meu pecado,
+Reconheço o teu amor,
+Teu espírito me tem levado
+A adorar-te meu Salvador.
+
+Coro
+Oh! que sangue remidor
+Que retira a minha dor
+E me livra do pecado,
+Ó Jesus, tu és amado.
+
+Instrumentos
+
+Por teu sangue estou liberto,
+Posso te glorificar,
+De meu pai, sim, agora estou perto,
+Aleluia, vou te louvar.`,
+
+"38 - Pelo sangue de Jesus irei clamar": `Pelo sangue de Jesus irei clamar,
+Meus pecados no altar irei deixar;
+Seu perdão que me alcança
+Eu já posso contemplar.
+Aleluia, eu te amo, meu Jesus.
+
+Toda minha gratidão te quero dar,
+Pela paz e pela fé em ti, Senhor;
+Teu Espírito transborda
+E meu ser quer te adorar
+Com os dons maravilhosos de Jesus.`,
+
+"39 - Jesus, Tu és o Meu Deus": `Jesus, Tu és o Meu Deus,
+A minh'alma tem sede de Ti,
+Eu te desejo, ó Deus,
+Necessitado estou.
+
+No teu Sangue há renovo,
+Poder para transformar,
+Para libertar e perdoar,
+Derrama deste sangue em mim.
+
+E assim te bendirei
+Enquanto eu viver,
+Em teu nome falarei,
+Os meus lábios te louvarão.
+
+E assim te bendirei
+Enquanto eu viver,
+Em teu nome falarei,
+Os meus lábios te louvarão.
+
+Aleluia, amém
+Aleluia, amém.`,
+
+"40 - Oh! Que Sangue Poderoso": `Oh! Que sangue poderoso!
+Oh! Que sangue cheio de virtude
+Sangue que por nós foi derramada
+Que nos dá pleno perdão
+Comunhão, total libertação
+Rompendo as barreiras do pecado
+
+Clamamos a ti Senhor
+Pelo poder que há no sangue de Jesus
+Para pedir o teu perdão e total libertação
+
+Clamamos a ti Senhor
+Pelo poder que há no sangue de Jesus
+Para pedir o teu perdão e total libertação
+E total libertação.`,
+
+"41 - Além do Véu Eu Quero Estar": `Além do véu, eu quero estar
+Além do véu com Jesus
+Pelo caminho que ele abriu naquela cruz
+Com ousadia vou entrar
+E por seu sangue vou clamar
+Além do véu onde ele quer me abençoar
+
+Além do véu
+A sua glória posso agora contemplar
+Do amor de Deus quem poderá me separar?
+Com querubins e serafins
+Mil aleluias vou cantar
+Além do véu
+Onde pra sempre quero estar
+Além do véu
+Onde pra sempre quero estar.`,
+
+"42 - Senhor, Suplico a Ti Em Oração": `Senhor, suplico a ti em oração
+Faze de mim um vaso novo
+Derrama o sangue de Jesus em mim
+
+(CORO)
+Permite-me que entre no Santo dos santos
+Perdoa-me do vil pecado
+Estende a tua mão
+
+Preciso contemplar a tua glória
+Concede-me tua vitória
+Derrama o sangue de Jesus em mim
+
+Final:
+Senhor, Senhor
+Senhor, Senhor, Senhor.`,
+
+"43 - Vou Clamar": `Vou Clamar por teu sangue, ó Jesus,
+Pra te ofecer a minha vida.
+Vou Clamar por teu sangue, ó Jesus,
+Pra te ofecer a minha vida.
+
+E quem tiver teu sangue sobre si
+Terá Vitória,
+Vitória em Ti, Jesus.
+E quem tiver teu sangue sobre si
+Terá Vitória,
+Vitória em Ti, Jesus.
+
+Instrumentos
+
+E quem tiver teu sangue sobre si
+Terá Vitória,
+Vitória em Ti, Jesus.
+E quem tiver teu sangue sobre si
+Terá Vitória,
+Vitória em Ti, Jesus.`,
+
+"44 - Conforme a Tua Infinita Graça":`Conforme a tua infinita graça
+Ó Pai perdoa a minha transgressão
+Faze-me sentir mais uma vez a graça
+E dá-me tua paz ao coração
+
+Mais uma vez eu sinto o meu pecado
+Que é contra ti, ó Pai, ó Pai de amor
+Minh'alma pede a Tua alegria
+Renova em mim o Teu amor
+Ó Meu Senhor
+
+Meu coração a ti eu ofereço
+Perdão imploro, meu Senhor e Rei
+Conforme a tua infinita graça
+Misericórdia assim alcançarei
+
+Deus de bondade a ti eu agradeço
+Teu paternal cuidado sobre mim
+Todo meu ser a ti eu ofereço
+Louvar-te quero sempre até o fim.`,
+
+"45 - Nos Átrios do Senhor Entramos": `Nos átrios do Senhor entramos
+Purificados pelo sangue de Jesus
+Vimos louvar-te e adorar-te
+És nosso Deus!
+Vimos trazer-te o nosso incenso
+Os nossos holocaustos de louvor
+
+(CORO)
+Só tu és digno da nossa adoração
+És nosso Deus!
+
+Quanta beleza em ti achamos
+Ao contemplarmos tua santidade
+Ó Deus perfeito, ó Deus triuno
+És nosso Deus!
+E como resplandece a tua luz
+Incomparável é tua glória
+
+Perante a imensidão do teu amor
+Quebranta-se de gratidão o nosso ser
+Ó, quanto amaste, quanto sofreste
+És nosso Deus!
+Tudo venceste pelo teu poder
+Pra sempre firme está teu trono!`,
+
+"46 - Ao Sentir o Teu Perdão": `Ao sentir o teu perdão
+Por teu sangue remidor
+Recebi libertação, alegria do Senhor
+Aleluia, glória a Jesus
+
+Nesta hora de louvor
+Que traz gozo ao coração
+Quero dar-te, meu Senhor
+Toda a minha gratidão
+Aleluia, glória a Jesus
+
+Quero então te adorar
+Pois em comunhão estou
+Em minh’alma te exaltar
+Aleluia, eu te dou
+Aleluia, glória a Jesus
+Aleluia, glória a Jesus.`,
+
+"47 - É teu sangue": `É teu sangue que me limpa
+É teu sangue que vida me dá
+Este sangue do sacrfício
+Derramado em meu lugar
+E que me torna
+Alvo mais que a neve meu Jesus
+Oferta perfeita no altar
+
+Por teu sangue clamo agora
+Por teu sangue eu ouso entrar
+No santuário onde o Deus vivo
+Quer a mim se revelar
+Cordeiro eterno
+És o holocausto que me salvou
+Oferta perfeita no altar.`,
+
+"48 - Pelo Sangue de Jesus": `Pelo Sangue de Jesus
+Clamo a ti, meu Senhor,
+Nele há perdão, paz, comunhão,
+Vida para o meu ser!
+
+Nos teus átrios quero entrar
+Coberto por este sangue,
+Para tua glória ver
+E te adorar!
+
+Pelo Sangue de Jesus
+Clamo a ti, meu Senhor,
+Nele há perdão, paz, comunhão,
+Vida para o meu ser!
+
+Final:
+Para tua glória ver
+E te adorar.`,
+
+"49 - Na Hora em Que Eu Quiser Falar Com Deus": `Na hora em que eu quiser falar com Deus
+Dobrar os meus joelhos e orar
+Eu vou clamar primeiro
+Pelo sangue de Jesus
+Só ele pode me purificar
+Eu vou clamar primeiro
+Pelo sangue de Jesus
+Só ele pode me purificar
+
+(CORO)
+Sangue precioso
+Que renova a comunhão
+Dá vida e plena paz ao coração
+Sangue precioso
+Que renova a comunhão
+Dá vida e plena paz ao coração
+
+Repetir hino`, 
+
+"50 - O sangue de Jesus": `O sangue de Jesus
+Que por nós foi derramado;
+Para nos conceder
+O perdão dos nossos pecados.
+Este sangue tão puro
+Vem trazer-nos salvação,
+Vitória, paz e libertação.
+
+Repetir o hino
+
+Final: Este sangue tão puro
+Vem trazer-nos salvação,
+Vitória, paz e libertação.`,
+
+"51 - O Cordeiro que na cruz morreu": `O Cordeiro que na cruz morreu
+Vivo está entre nós,
+Derramou seu sangue inocente
+Para nos purificar.
+
+(CORO)
+Nós clamamos por este sangue,
+Que é Espírito de vida,
+É o nosso escudo, nossa proteção.
+Este sangue nos traz o perdão.
+
+De alto a baixo o véu se rasgou
+Quando Jesus expirou,
+Permitindo a nossa entrada
+No santíssimo lugar.
+
+Final: 
+É o nosso escudo, nossa proteção.
+Este sangue nos traz comunhão.`,
+
+"52 - Escuta-me, Senhor": `Escuta-me, Senhor,
+Escuta as minhas súplicas,
+Inclina os teus ouvidos à minha voz.
+Clamo, ó Senhor, pelo sangue de Jesus,
+Vem me libertar e me transformar.
+
+Instrumentos
+
+Renova a minha vida,
+Enche-me de gozo e de paz,
+Unge-me a cabeça
+Com o óleo do teu Espírito
+E o meu cálice transborda,
+Renova-me, Senhor.
+
+Clamo, ó Senhor, pelo sangue de Jesus,
+Vem me libertar e me transformar,
+Renova a minha vida,
+Enche-me de gozo e paz,
+Transborda em mim, Senhor,
+A tua graça e teu amor.`, 
+
+"53 - O sangue do Cordeiro de Deus": `O sangue do Cordeiro de Deus
+Foi vertido ali na cruz,
+Nos trazendo redenção
+E comunhão com Deus.
+
+(CORO)
+Purifica-nos, Senhor,
+Santifica-nos pelo sangue remidor,
+Sê propício, ó vem perdoar-nos,
+Pois com fé nós clamamos.
+
+Instrumentos
+
+O sumo sacerdote, Jesus,
+Foi perfeito no seu gesto
+E pagou com o seu sangue
+A nossa salvação.
+
+Final: 
+Purifica-nos, Senhor,
+Santifica-nos pelo sangue remidor,
+Sê propício, ó vem perdoar-nos,
+Pois com fé (pois com fé)
+Nós clamamos (nós clamamos)
+Pois com fé (pois com fé)
+Nós clamamos.`,
+
+"54 - Há vitória sempre em ti, Senhor": `Há vitória sempre em ti, Senhor,
+Há vitória sempre em ti, Senhor,
+Pelo sangue de Jesus derramado por mim,
+Há vitória sempre em ti, Senhor.
+
+Há vitória sempre em ti, Senhor, 
+Há vitória sempre em ti, Senhor, 
+Contra as trevas tenho luz,
+Sou remido por Jesus,
+Há vitória sempre em ti, Senhor.
+
+Há vitória sempre em ti, Senhor, 
+Há vitória sempre em ti, Senhor, 
+Pela volta de Jesus,
+Pela paz no coração,
+Há vitória sempre em ti, Senhor.`, 
+
+"55 - Senhor, meu Deus e Pai": `Senhor, meu Deus e Pai
+Eu me prostro diante de ti:
+Perdão te peço, agora,
+Pelo sangue de Jesus.
+
+Liberta-me, Senhor; 
+Purifica-me, ó Pai 
+Por Jesus, que é o meu Rei,
+Amigo e remidor. 
+
+Liberta-me, Senhor; 
+Purifica-me, ó Pai 
+Por Jesus, que é o meu Rei,
+Amigo e remidor.
+
+Instrumentos
+
+Repetir o hino`,
+
+"56 - Vitória sobre vitória": `Vitória sobre vitória a ti pertence
+Pois o preço lá na cruz tu já pagaste;
+Teu sangue puro derramaste,
+Aleluia, glória ao Rei!
+Santo é o Deus forte!
+Santo é o Deus forte!
+
+O Espírito está lutando contra a carne,
+Mas a vitória já foi decretada;
+Tua vontade prevaleceu,
+Aleluia, glória ao Rei!
+Santo é o Deus forte!
+Santo é o Deus forte!`,
+
+      // ... Você pode preencher as outras letras aqui
     };
 
     const lista = document.getElementById("listaMusicas");
     const input = document.getElementById("search-input");
-    const notasMusicais = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 
+    // Função para atualizar a lista visível conforme o objeto letras
     function atualizarLista() {
       lista.innerHTML = "";
       const filtro = input.value.toLowerCase();
@@ -324,27 +1146,23 @@ Na glória onde Jesus está.`,
         .forEach((titulo) => {
           const div = document.createElement("div");
           div.className = "song-item";
-
-          const temCifra = !!cifras[titulo];
-          const cifraButton = temCifra
-            ? `<button class="action-button" title="Cifra" onclick="abrirModalCifra('${titulo.replace(/'/g, "\\'")}')">🎸</button>`
-            : '';
-
           div.innerHTML = `
-            <div class="song-info">
-              <p class="song-title">${titulo}</p>
-            </div>
-            <div class="song-actions">
-              <button class="action-button" title="Letra" onclick="abrirModalLetra('${titulo.replace(/'/g, "\\'")}')">T</button>
-              ${cifraButton}
-            </div>
-          `;
+          <div class="song-info">
+            <p class="song-title">${titulo}</p>
+          </div>
+          <div class="song-actions">
+            <button class="action-button" title="Text" onclick="abrirModalLetra('${titulo.replace(/'/g, "\\'")}')">T</button>
+            <button class="action-button" title="Chords">🎸</button>
+            <button class="action-button" title="Music">&#128221;</button>
+          </div>
+        `;
           lista.appendChild(div);
         });
     }
 
     input.addEventListener("input", atualizarLista);
 
+    // Mostrar letra no modal
     function abrirModalLetra(titulo) {
       const modal = document.getElementById("modalLetra");
       const fundo = document.getElementById("modalFundo");
@@ -358,73 +1176,12 @@ Na glória onde Jesus está.`,
       fundo.style.display = "block";
     }
 
-    function abrirModalCifra(titulo) {
-      const modal = document.getElementById("modalCifra");
-      const fundo = document.getElementById("modalFundo");
-      const tituloCifra = document.getElementById("tituloCifra");
-      const conteudoCifra = document.getElementById("conteudoCifra");
-      
-      const cifraHTML = cifras[titulo];
-
-      if (cifraHTML) {
-        tituloCifra.textContent = titulo;
-        conteudoCifra.innerHTML = cifraHTML;
-
-        const match = cifraHTML.match(/data-cifra="([A-G][#°\d]?)".*?\s/);
-        const notaBaseOriginal = match ? match[1].replace(/°\d/, '') : 'G';
-
-        document.getElementById('nota-principal').textContent = notaBaseOriginal;
-        
-        modal.style.display = "block";
-        fundo.style.display = "block";
-      } else {
-        alert("Cifra não disponível para este hino.");
-      }
+    function fecharModal() {
+      document.getElementById("modalLetra").style.display = "none";
+      document.getElementById("modalFundo").style.display = "none";
     }
 
-    function fecharModal(modalId) {
-      if (modalId === 'todos') {
-        document.getElementById("modalLetra").style.display = "none";
-        document.getElementById("modalCifra").style.display = "none";
-        document.getElementById("modalFundo").style.display = "none";
-      } else {
-        document.getElementById(modalId).style.display = "none";
-        document.getElementById("modalFundo").style.display = "none";
-      }
-    }
-
-    function mudarTom(direcao) {
-      const notaPrincipalSpan = document.getElementById('nota-principal');
-      const cifraSpans = document.querySelectorAll('#modalCifra [data-cifra]');
-
-      const notaAtual = notaPrincipalSpan.textContent.trim();
-      const indiceAtual = notasMusicais.indexOf(notaAtual);
-
-      if (indiceAtual === -1) {
-        console.error("Nota principal não encontrada no array de notas.");
-        return;
-      }
-
-      const novoIndice = (indiceAtual + direcao + notasMusicais.length) % notasMusicais.length;
-      const novaNota = notasMusicais[novoIndice];
-
-      notaPrincipalSpan.textContent = novaNota;
-
-      cifraSpans.forEach(elemento => {
-        const cifraComQualificador = elemento.getAttribute('data-cifra');
-        const notaPura = cifraComQualificador.match(/^[A-G]#?/)[0];
-        const qualificador = cifraComQualificador.replace(notaPura, '');
-
-        const indiceCifra = notasMusicais.indexOf(notaPura);
-        
-        if (indiceCifra !== -1) {
-            const novoIndiceCifra = (indiceCifra + direcao + notasMusicais.length) % notasMusicais.length;
-            const novaCifraPura = notasMusicais[novoIndiceCifra];
-            elemento.textContent = novaCifraPura + qualificador;
-        }
-      });
-    }
-    
+    // Adicionar nova letra
     function adicionarLetra() {
       const tipo = prompt(
         "Deseja adicionar:\n1 - Letra\n2 - Cifra\n3 - Partitura"
@@ -443,11 +1200,15 @@ Na glória onde Jesus está.`,
       if (!titulo || !letra)
         return alert("Formato inválido. A primeira linha deve ser o título.");
 
+      // Adiciona ao objeto letras
       letras[titulo] = letra;
+
+      // Atualiza lista e alerta
       atualizarLista();
       alert(`Hino "${titulo}" adicionado com sucesso!`);
     }
 
+    // Função para salvar o HTML atualizado (igual a seu código original)
     function salvarHtml() {
       let letrasStringEntries = [];
       for (const [titulo, letra] of Object.entries(letras)) {
@@ -469,14 +1230,19 @@ Na glória onde Jesus está.`,
       a.click();
       URL.revokeObjectURL(url);
     }
-    
+
+    // Atualizar músicas online (exemplo com URL externa)
     async function atualizarMusicasOnline() {
-      const urlJSON = "https://seusite.com/musicas.json";
+      const urlJSON = "https://seusite.com/musicas.json"; // Mude para sua URL real
+
       try {
         const response = await fetch(urlJSON, { cache: "no-store" });
         if (!response.ok) throw new Error("Não foi possível buscar músicas online");
         const musicasOnline = await response.json();
+
+        // Merge letras com músicas online
         Object.assign(letras, musicasOnline);
+
         atualizarLista();
         console.log("Músicas atualizadas online.");
       } catch (e) {
@@ -484,6 +1250,7 @@ Na glória onde Jesus está.`,
       }
     }
 
+    // Registrar service worker
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker
         .register("sw.js")
@@ -491,6 +1258,7 @@ Na glória onde Jesus está.`,
         .catch((err) => console.log("Erro ao registrar SW:", err));
     }
 
+    // Inicializa lista e tenta atualizar online
     atualizarLista();
     atualizarMusicasOnline();
   </script>
