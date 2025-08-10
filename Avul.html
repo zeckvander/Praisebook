@@ -239,8 +239,11 @@ Da Vida em eterna bonança,
 Na glória onde Jesus está.`,
     };
 
+    // ALTERAÇÃO: O objeto cifras agora armazena o tom original e o HTML
     const cifras = {
-      "C/C - Aquilo Que Fui Não Sou Mais": `  <span data-cifra="Em">Em</span>                    <span data-cifra="C">C</span>
+      "C/C - Aquilo Que Fui Não Sou Mais": {
+        tomOriginal: 'G', // Tom correto da música
+        html: `  <span data-cifra="Em">Em</span>                    <span data-cifra="C">C</span>
 Aquilo que fui não sou mais
                          <span data-cifra="B">B</span>
 Nem sou tudo o que devo ser
@@ -281,12 +284,14 @@ Caminha na doce esperança
                     <span data-cifra="C">C</span>
 Da Vida em eterna bonança
   <span data-cifra="B">B</span>                    <span data-cifra="Em">Em</span>  <span data-cifra="E">E</span>
-Na glória onde Jesus está.`,
+Na glória onde Jesus está.`
+      },
     };
 
     const lista = document.getElementById("listaMusicas");
     const input = document.getElementById("search-input");
     const notasMusicais = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+    let tomAtual = ''; // Variável para rastrear o tom atual
 
     function atualizarLista() {
       lista.innerHTML = "";
@@ -330,23 +335,23 @@ Na glória onde Jesus está.`,
       fundo.style.display = "block";
     }
 
+    // ALTERAÇÃO: Função corrigida para usar o tomOriginal
     function abrirModalCifra(titulo) {
       const modal = document.getElementById("modalCifra");
       const fundo = document.getElementById("modalFundo");
       const tituloCifra = document.getElementById("tituloCifra");
       const conteudoCifra = document.getElementById("conteudoCifra");
+      const notaPrincipalSpan = document.getElementById('nota-principal');
       
-      const cifraHTML = cifras[titulo];
+      const musica = cifras[titulo];
 
-      if (cifraHTML) {
+      if (musica) {
         tituloCifra.textContent = titulo;
-        conteudoCifra.innerHTML = cifraHTML;
-
-        const match = cifraHTML.match(/data-cifra="([A-G][#°\d]?)".*?\s/);
-        const notaBaseOriginal = match ? match[1].replace(/°\d/, '') : 'G';
-
-        document.getElementById('nota-principal').textContent = notaBaseOriginal;
+        conteudoCifra.innerHTML = musica.html;
         
+        tomAtual = musica.tomOriginal; // Define o tom inicial
+        notaPrincipalSpan.textContent = tomAtual;
+
         modal.style.display = "block";
         fundo.style.display = "block";
       } else {
@@ -390,7 +395,11 @@ Na glória onde Jesus está.`,
         const indiceCifra = notasMusicais.indexOf(notaPura);
         
         if (indiceCifra !== -1) {
-            const novoIndiceCifra = (indiceCifra + direcao + notasMusicais.length) % notasMusicais.length;
+            // Calcula a diferença entre o tom original e o tom atual
+            const diferenca = notasMusicais.indexOf(novaNota) - notasMusicais.indexOf(tomAtual);
+            
+            // Transpõe o acorde a partir do tom original
+            const novoIndiceCifra = (notasMusicais.indexOf(notaPura) + diferenca + notasMusicais.length) % notasMusicais.length;
             const novaCifraPura = notasMusicais[novoIndiceCifra];
             elemento.textContent = novaCifraPura + qualificador;
         }
