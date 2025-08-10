@@ -2749,10 +2749,28 @@ Santo é o Deus forte!`
       // ... Adicione outras cifras aqui
     };
 
-    const lista = document.getElementById("listaMusicas");
-    const input = document.getElementById("search-input");
-    const notasMusicais = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-    let tomAtual = '';
+function transporAcorde(acorde, semitons) {
+    // Extrai a nota base (C, C#, Db, etc.) e o resto (m, 7, maj7...)
+    const match = acorde.match(/^([A-G](#|b)?)(.*)$/);
+    if (!match) return acorde; // Se não for acorde, retorna como está
+
+    let [ , notaBase, , sufixo ] = match;
+
+    // Localiza índice da nota base
+    let index = notasMusicais.indexOf(notaBase);
+    if (index === -1) return acorde;
+
+    // Aplica a transposição
+    index = (index + semitons + notasMusicais.length) % notasMusicais.length;
+
+    // Retorna a nota transposta + sufixo
+    return notasMusicais[index] + sufixo;
+}
+
+// Exemplo de uso
+console.log(transporAcorde("C", 2));     // D
+console.log(transporAcorde("Am", 2));    // Bm
+console.log(transporAcorde("F#m7", -1)); // Fm7
 
     function atualizarLista() {
       lista.innerHTML = "";
