@@ -232,31 +232,20 @@
     }
 
     function transporAcorde(acorde, semitons) {
-        const match = acorde.match(/^([A-G](#|b)?)([^\/]*)(\/([A-G](#|b)?))?$/i);
-        if (!match) return acorde;
+      const match = acorde.match(/^([A-G])(#|b)?(.*)/i);
+      if (!match) return acorde;
 
-        let [, notaBase, , sufixo, , baixo] = match;
+      let [, notaBase, acidente, sufixo] = match;
+      notaBase = notaBase.toUpperCase();
+      
+      let notaNormalizada = normalizarNota(notaBase + (acidente || ''));
+      let indexBase = notasMusicais.indexOf(notaNormalizada);
+      if (indexBase === -1) return acorde;
+      
+      indexBase = (indexBase + semitons + notasMusicais.length) % notasMusicais.length;
+      let novaNotaBase = notasMusicais[indexBase];
 
-        notaBase = normalizarNota(notaBase.charAt(0).toUpperCase() + (notaBase[1] || '').toLowerCase());
-        if (baixo) {
-            baixo = normalizarNota(baixo.charAt(0).toUpperCase() + (baixo[1] || '').toLowerCase());
-        }
-
-        let indexBase = notasMusicais.indexOf(notaBase);
-        if (indexBase === -1) return acorde;
-        indexBase = (indexBase + semitons + notasMusicais.length) % notasMusicais.length;
-        let novaNotaBase = notasMusicais[indexBase];
-
-        let novoBaixo = '';
-        if (baixo) {
-            let indexBaixo = notasMusicais.indexOf(baixo);
-            if (indexBaixo !== -1) {
-                indexBaixo = (indexBaixo + semitons + notasMusicais.length) % notasMusicais.length;
-                novoBaixo = '/' + notasMusicais[indexBaixo];
-            }
-        }
-
-        return novaNotaBase + sufixo + novoBaixo;
+      return novaNotaBase + sufixo;
     }
 
     // Letras iniciais - você pode deixar vazio ou preencher algumas
@@ -409,32 +398,32 @@ Na glória onde Jesus está.`
 O sangue de Jesus tem poder
  <span data-cifra="A">A</span>                 <span data-cifra="Gm">Gm</span>  <span data-cifra="C7">C7</span>
 Poder que a mim pode valer
-  <span data-cifra="Dm">D</span>              <span data-cifra="D7">D7</span>     <span data-cifra="Gm">Gm</span>
+  <span data-cifra="Dm">Dm</span>              <span data-cifra="D7">D7</span>     <span data-cifra="Gm">Gm</span>
 Se comunhão não posso eu sentir, Senhor
- <span data-cifra="F">F</span>                  <span data-cifra="A7">A7</span>  <span data-cifra="Dm">Dm</span>
+ <span data-cifra="C">C</span>                  <span data-cifra="A7">A7</span>  <span data-cifra="Dm">Dm</span>
 Derrama do teu sangue remidor
 
 (CORO)
-<span data-cifra="A">A</span>         <span data-cifra="D">D</span>           <span data-cifra="A">A</span>
+<span data-cifra="Dm">Dm</span>         <span data-cifra="Bb">Bb</span>           <span data-cifra="Dm">Dm</span>
 Derrama do teu sangue sobre mim
-<span data-cifra="E">E</span>  <span data-cifra="A">A</span>  <span data-cifra="E7">E7</span>
+<span data-cifra="A">A</span>  <span data-cifra="Dm">Dm</span>  <span data-cifra="A7">A7</span>
 Ó Senhor
-<span data-cifra="A">A</span>         <span data-cifra="D">D</span>           <span data-cifra="A">A</span>
+<span data-cifra="Dm">Dm</span>         <span data-cifra="Bb">Bb</span>           <span data-cifra="Dm">Dm</span>
 Derrama do teu sangue sobre mim
-<span data-cifra="E">E</span>  <span data-cifra="A">A</span>  <span data-cifra="E7">E7</span>
+<span data-cifra="A">A</span>  <span data-cifra="Dm">Dm</span>  <span data-cifra="A7">A7</span>
 Ó Senhor
-  <span data-cifra="A">A</span>           <span data-cifra="A7">A7</span>         <span data-cifra="D">D</span>
+  <span data-cifra="Dm">Dm</span>           <span data-cifra="D7">D7</span>         <span data-cifra="Bb">Bb</span>
 Sei que estás aqui e isto quero eu sentir
- <span data-cifra="E">E</span>                   <span data-cifra="A">A</span>
+ <span data-cifra="C">C</span>                   <span data-cifra="Dm">Dm</span>
 Derrama do teu sangue sobre mim
 
- <span data-cifra="A">A</span>                   <span data-cifra="D">D</span>
+ <span data-cifra="Dm">Dm</span>                   <span data-cifra="Bb">Bb</span>
 Em tua presença estou, Senhor
-  <span data-cifra="E">E</span>                 <span data-cifra="A">A</span>  <span data-cifra="E7">E7</span>
+  <span data-cifra="A">A</span>                 <span data-cifra="Dm">Dm</span>  <span data-cifra="A7">A7</span>
 De ti necessito muito amor
-   <span data-cifra="A">A</span>                    <span data-cifra="A7">A7</span>    <span data-cifra="D">D</span>
+   <span data-cifra="Dm">Dm</span>                    <span data-cifra="D7">D7</span>    <span data-cifra="Bb">Bb</span>
 Pelo poder que há em teu sangue remidor
-  <span data-cifra="E">E</span>                <span data-cifra="A">A</span>
+  <span data-cifra="C">C</span>                <span data-cifra="Dm">Dm</span>
 Ó vem purificar-me, meu Senhor`
       },
       "02 - O sangue de Jesus tem poder para Salvar": {
@@ -668,7 +657,7 @@ Seja sobre nós a Tua graça`
       let letrasStringEntries = [];
       for (const [titulo, letra] of Object.entries(letras)) {
         const letraEscapada = letra.replace(/`/g, "\\`");
-        letrasStringEntries.push(`"${titulo}": \`${letraEscapada}\``);
+        letrasStringEntries.push(`"${titulo}": \`${letras[titulo]}\``);
       }
       const letrasString = "const letras = {\n" + letrasStringEntries.join(",\n") + "\n};";
 
