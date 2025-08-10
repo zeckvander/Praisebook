@@ -642,25 +642,34 @@ Seja sobre nós a Tua graça`
             return;
         }
 
-        const tomOriginal = musica.tomOriginal;
-        const notaAtual = notaPrincipalSpan.textContent.trim();
+        let tomAtualComSufixo = notaPrincipalSpan.textContent.trim();
         
-        // Extrai a nota base do tom original (ex: 'Dm' -> 'D')
-        const notaBaseOriginal = tomOriginal.replace(/[mb#].*/, ''); 
-
-        const indiceAtual = notasMusicais.indexOf(normalizarNota(notaAtual));
-
-        if (indiceAtual === -1) {
-            console.error("Erro: Nota principal não encontrada no array de notas.");
+        // Separa a nota base do sufixo do tom atual (ex: 'Dm' -> 'D', 'm')
+        const match = tomAtualComSufixo.match(/^([A-G])(#|b)?(.*)/i);
+        if (!match) {
+            console.error("Erro: Formato de nota inválido.");
             return;
         }
+        const [, notaBaseAtual, acidenteAtual, sufixoAtual] = match;
 
-        const novoIndice = (indiceAtual + direcao + notasMusicais.length) % notasMusicais.length;
-        const novaNota = notasMusicais[novoIndice];
-        notaPrincipalSpan.textContent = novaNota;
+        // Calcula o novo índice da nota base
+        const notaNormalizadaAtual = normalizarNota(notaBaseAtual.toUpperCase() + (acidenteAtual || ''));
+        const indexAtual = notasMusicais.indexOf(notaNormalizadaAtual);
+        if (indexAtual === -1) return;
 
-        // Calcula a diferença de semitons usando apenas as notas base
-        const diferencaSemitons = notasMusicais.indexOf(novaNota) - notasMusicais.indexOf(normalizarNota(notaBaseOriginal));
+        const novoIndice = (indexAtual + direcao + notasMusicais.length) % notasMusicais.length;
+        const novaNotaBase = notasMusicais[novoIndice];
+
+        // Recalcula o novo tom com o sufixo original
+        const novoTom = novaNotaBase + sufixoAtual;
+        notaPrincipalSpan.textContent = novoTom;
+
+        // Pega a nota base do tom original para calcular a diferença de semitons
+        const notaBaseOriginal = musica.tomOriginal.replace(/[mb#].*/, ''); 
+        const indexOriginal = notasMusicais.indexOf(normalizarNota(notaBaseOriginal));
+
+        // Calcula a diferença de semitons entre a nova nota e a nota original
+        const diferencaSemitons = novoIndice - indexOriginal;
 
         cifraSpans.forEach(elemento => {
             const cifraOriginal = elemento.getAttribute('data-cifra');
