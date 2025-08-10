@@ -290,7 +290,70 @@ Na glória onde Jesus está.`
     const lista = document.getElementById("listaMusicas");
     const input = document.getElementById("search-input");
     const notasMusicais = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+    const equivalentes = {
+        'Db': 'C#', 'Eb': 'D#', 'Fb': 'E',
+        'Gb': 'F#', 'Ab': 'G#', 'Bb': 'A#',
+        'Cb': 'B', 'E#': 'F', 'B#': 'C'
+    };
+    const sharpsToFlats = {
+        'C#': 'Db', 'D#': 'Eb', 'F#': 'Gb', 'G#': 'Ab', 'A#': 'Bb'
+    };
+
     let tomAtual = '';
+
+    function normalizarNota(nota) {
+        return equivalentes[nota] || nota;
+    }
+
+    function aplicarRegras(nota) {
+      const regrasFinais = {
+        'E#': 'F',
+        'B#': 'C',
+        'Fb': 'E',
+        'Cb': 'B'
+      };
+      return regrasFinais[nota] || nota;
+    }
+    
+    function transporNota(notaComSufixo, semitons) {
+      const match = notaComSufixo.match(/^([A-G])(#|b)?(.*)/i);
+      if (!match) return notaComSufixo;
+
+      const [, notaBase, acidente, sufixo] = match;
+      const notaNormalizada = normalizarNota(notaBase.toUpperCase() + (acidente || ''));
+
+      let indexBase = notasMusicais.indexOf(notaNormalizada);
+      if (indexBase === -1) return notaComSufixo;
+
+      indexBase = (indexBase + semitons + notasMusicais.length) % notasMusicais.length;
+      let novaNotaBase = notasMusicais[indexBase];
+      
+      if (acidente === 'b') {
+          const bemolEquivalente = sharpsToFlats[novaNotaBase];
+          if (bemolEquivalente) {
+              novaNotaBase = bemolEquivalente;
+          }
+      }
+
+      novaNotaBase = aplicarRegras(novaNotaBase);
+
+      return novaNotaBase + sufixo;
+    }
+
+    function transporAcorde(acorde, semitons) {
+        const partes = acorde.split('/');
+        const acordePrincipal = partes[0];
+        const notaDoBaixo = partes[1];
+
+        const novoAcordePrincipal = transporNota(acordePrincipal, semitons);
+
+        if (notaDoBaixo) {
+            const novaNotaDoBaixo = transporNota(notaDoBaixo, semitons);
+            return `${novoAcordePrincipal}/${novaNotaDoBaixo}`;
+        }
+
+        return novoAcordePrincipal;
+    }
 
     function atualizarLista() {
       lista.innerHTML = "";
@@ -371,34 +434,64 @@ Na glória onde Jesus está.`
     function mudarTom(direcao) {
       const notaPrincipalSpan = document.getElementById('nota-principal');
       const cifraSpans = document.querySelectorAll('#modalCifra [data-cifra]');
+      const tituloMusica = document.getElementById('tituloCifra').textContent;
+      const musica = cifras[tituloMusica];
 
-      const notaAtual = notaPrincipalSpan.textContent.trim();
-      const indiceAtual = notasMusicais.indexOf(notaAtual);
+      if (!musica) {
+          console.error("Erro: Música não encontrada nos dados de cifra.");
+          return;
+      }
+      
+      const tomOriginal = musica.tomOriginal;
+      
+      const matchOriginal = tomOriginal.match(/^([A-G])(#|b)?(.*)/i);
+      if (!matchOriginal) {
+          console.error("Erro: Formato de tom original inválido.");
+          return;
+      }
+      const [, notaBaseOriginal, acidenteOriginal] = matchOriginal;
+      const notaNormalizadaOriginal = normalizarNota(notaBaseOriginal.toUpperCase() + (acidenteOriginal || ''));
+      const indexOriginal = notasMusicais.indexOf(notaNormalizadaOriginal);
 
-      if (indiceAtual === -1) {
-        console.error("Nota principal não encontrada no array de notas.");
-        return;
+      let tomAtualComSufixo = notaPrincipalSpan.textContent.trim();
+      const matchAtual = tomAtualComSufixo.match(/^([A-G])(#|b)?(.*)/i);
+      if (!matchAtual) {
+          console.error("Erro: Formato de nota atual inválido.");
+          return;
+      }
+      const [, notaBaseAtual, acidenteAtual] = matchAtual;
+      const notaNormalizadaAtual = normalizarNota(notaBaseAtual.toUpperCase() + (acidenteAtual || ''));
+      let indexAtual = notasMusicais.indexOf(notaNormalizadaAtual);
+
+      if (indexOriginal === -1 || indexAtual === -1) {
+          console.error("Erro: Notas não encontradas no array de notas.");
+          return;
       }
 
-      const novoIndice = (indiceAtual + direcao + notasMusicais.length) % notasMusicais.length;
-      const novaNota = notasMusicais[novoIndice];
+      const novoIndice = (indexAtual + direcao + notasMusicais.length) % notasMusicais.length;
+      let novaNotaBase = notasMusicais[novoIndice];
 
-      notaPrincipalSpan.textContent = novaNota;
+      if (acidenteOriginal === 'b') {
+        const bemolEquivalente = sharpsToFlats[novaNotaBase];
+        if (bemolEquivalente) {
+          novaNotaBase = bemolEquivalente;
+        }
+      }
+
+      const novoTom = novaNotaBase;
+      notaPrincipalSpan.textContent = novoTom;
+
+      let diferencaSemitons = novoIndice - indexOriginal;
+      if (diferencaSemitons > notasMusicais.length / 2) {
+          diferencaSemitons -= notasMusicais.length;
+      } else if (diferencaSemitons < -notasMusicais.length / 2) {
+          diferencaSemitons += notasMusicais.length;
+      }
 
       cifraSpans.forEach(elemento => {
-        const cifraComQualificador = elemento.getAttribute('data-cifra');
-        const notaPura = cifraComQualificador.match(/^[A-G]#?/)[0];
-        const qualificador = cifraComQualificador.replace(notaPura, '');
-
-        const indiceCifra = notasMusicais.indexOf(notaPura);
-        
-        if (indiceCifra !== -1) {
-            const diferenca = notasMusicais.indexOf(novaNota) - notasMusicais.indexOf(tomAtual);
-            
-            const novoIndiceCifra = (notasMusicais.indexOf(notaPura) + diferenca + notasMusicais.length) % notasMusicais.length;
-            const novaCifraPura = notasMusicais[novoIndiceCifra];
-            elemento.textContent = novaCifraPura + qualificador;
-        }
+          const cifraOriginal = elemento.getAttribute('data-cifra');
+          const novaCifra = transporAcorde(cifraOriginal, diferencaSemitons);
+          elemento.textContent = novaCifra;
       });
     }
 
