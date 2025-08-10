@@ -189,6 +189,8 @@
         placeholder="Qual hino procura?"
       />
     </div>
+    <button class="add-button" title="Adicionar Letra" onclick="adicionarLetra()">+</button>
+    <button class="save-button" title="Salvar HTML" onclick="salvarHtml()">💾</button>
   </div>
 
   <div class="song-list" id="listaMusicas"></div>
@@ -213,6 +215,50 @@
   <div id="modalFundo" class="modal-backdrop" onclick="fecharModal('todos')"></div>
 
   <script>
+    const lista = document.getElementById("listaMusicas");
+    const input = document.getElementById("search-input");
+
+    const notasMusicais = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+    const equivalentes = {
+        'Db': 'C#', 'Eb': 'D#', 'Fb': 'E',
+        'Gb': 'F#', 'Ab': 'G#', 'Bb': 'A#',
+        'Cb': 'B', 'E#': 'F', 'B#': 'C'
+    };
+
+    let tomAtual = '';
+
+    function normalizarNota(nota) {
+        return equivalentes[nota] || nota;
+    }
+
+    function transporAcorde(acorde, semitons) {
+        const match = acorde.match(/^([A-G](#|b)?)([^\/]*)(\/([A-G](#|b)?))?$/i);
+        if (!match) return acorde;
+
+        let [, notaBase, , sufixo, , baixo] = match;
+
+        notaBase = normalizarNota(notaBase.charAt(0).toUpperCase() + (notaBase[1] || '').toLowerCase());
+        if (baixo) {
+            baixo = normalizarNota(baixo.charAt(0).toUpperCase() + (baixo[1] || '').toLowerCase());
+        }
+
+        let indexBase = notasMusicais.indexOf(notaBase);
+        if (indexBase === -1) return acorde;
+        indexBase = (indexBase + semitons + notasMusicais.length) % notasMusicais.length;
+        let novaNotaBase = notasMusicais[indexBase];
+
+        let novoBaixo = '';
+        if (baixo) {
+            let indexBaixo = notasMusicais.indexOf(baixo);
+            if (indexBaixo !== -1) {
+                indexBaixo = (indexBaixo + semitons + notasMusicais.length) % notasMusicais.length;
+                novoBaixo = '/' + notasMusicais[indexBaixo];
+            }
+        }
+
+        return novaNotaBase + sufixo + novoBaixo;
+    }
+
     // Letras iniciais - você pode deixar vazio ou preencher algumas
     const letras = {
       "C/C - Aquilo Que Fui Não Sou Mais": `Aquilo que fui não sou mais,
@@ -229,7 +275,7 @@ Ele mesmo virá nos buscar.
 
 Eu morto pensei que vivia,
 Já vivo e com Cristo morri;
-Para ele, estou ressussitado,
+Para ele, estou ressuscitado,
 Para o mundo, estou Crucificado;
 Minha vida em Jesus escondi.
 
@@ -313,7 +359,7 @@ Pelo poder que há em teu sangue remidor
 
     const cifras = {
       "C/C - Aquilo Que Fui Não Sou Mais": {
-        tomOriginal: 'G',
+        tomOriginal: 'Em',
         html: `  <span data-cifra="Em">Em</span>                    <span data-cifra="C">C</span>
 Aquilo que fui não sou mais
                          <span data-cifra="B">B</span>
@@ -493,29 +539,6 @@ Seja sobre nós a Tua graça`
       // ... Adicione outras cifras aqui
     };
 
-    function transporAcorde(acorde, semitons) {
-    // Extrai a nota base (C, C#, Db, etc.) e o resto (m, 7, maj7...)
-      const match = acorde.match(/^([A-G](#|b)?)(.*)$/);
-      if (!match) return acorde; // Se não for acorde, retorna como está
-
-      let [ , notaBase, , sufixo ] = match;
-
-    // Localiza índice da nota base
-      let index = notasMusicais.indexOf(notaBase);
-      if (index === -1) return acorde;
-
-    // Aplica a transposição
-      index = (index + semitons + notasMusicais.length) % notasMusicais.length;
-
-    // Retorna a nota transposta + sufixo
-      return notasMusicais[index] + sufixo;
-    }
-
-// Exemplo de uso
-    console.log(transporAcorde("C", 2));     // D
-    console.log(transporAcorde("Am", 2));    // Bm
-    console.log(transporAcorde("F#m7", -1)); // Fm7
-
     function atualizarLista() {
       lista.innerHTML = "";
       const filtro = input.value.toLowerCase();
@@ -593,37 +616,29 @@ Seja sobre nós a Tua graça`
     }
 
     function mudarTom(direcao) {
-      const notaPrincipalSpan = document.getElementById('nota-principal');
-      const cifraSpans = document.querySelectorAll('#modalCifra [data-cifra]');
+        const notaPrincipalSpan = document.getElementById('nota-principal');
+        const cifraSpans = document.querySelectorAll('#modalCifra [data-cifra]');
+        const tomOriginal = cifras[document.getElementById('tituloCifra').textContent].tomOriginal;
 
-      const notaAtual = notaPrincipalSpan.textContent.trim();
-      const indiceAtual = notasMusicais.indexOf(notaAtual);
+        const notaAtual = notaPrincipalSpan.textContent.trim();
+        const indiceAtual = notasMusicais.indexOf(normalizarNota(notaAtual));
 
-      if (indiceAtual === -1) {
-        console.error("Nota principal não encontrada no array de notas.");
-        return;
-      }
-
-      const novoIndice = (indiceAtual + direcao + notasMusicais.length) % notasMusicais.length;
-      const novaNota = notasMusicais[novoIndice];
-
-      notaPrincipalSpan.textContent = novaNota;
-
-      cifraSpans.forEach(elemento => {
-        const cifraComQualificador = elemento.getAttribute('data-cifra');
-        const notaPura = cifraComQualificador.match(/^[A-G]#?/)[0];
-        const qualificador = cifraComQualificador.replace(notaPura, '');
-
-        const indiceCifra = notasMusicais.indexOf(notaPura);
-
-        if (indiceCifra !== -1) {
-            const diferenca = notasMusicais.indexOf(novaNota) - notasMusicais.indexOf(tomAtual);
-
-            const novoIndiceCifra = (notasMusicais.indexOf(notaPura) + diferenca + notasMusicais.length) % notasMusicais.length;
-            const novaCifraPura = notasMusicais[novoIndiceCifra];
-            elemento.textContent = novaCifraPura + qualificador;
+        if (indiceAtual === -1) {
+            console.error("Nota principal não encontrada no array de notas.");
+            return;
         }
-      });
+
+        const novoIndice = (indiceAtual + direcao + notasMusicais.length) % notasMusicais.length;
+        const novaNota = notasMusicais[novoIndice];
+        notaPrincipalSpan.textContent = novaNota;
+
+        const diferencaSemitons = notasMusicais.indexOf(novaNota) - notasMusicais.indexOf(normalizarNota(tomOriginal));
+
+        cifraSpans.forEach(elemento => {
+            const cifraOriginal = elemento.getAttribute('data-cifra');
+            const novaCifra = transporAcorde(cifraOriginal, diferencaSemitons);
+            elemento.textContent = novaCifra;
+        });
     }
 
     function adicionarLetra() {
@@ -695,6 +710,7 @@ Seja sobre nós a Tua graça`
         .catch((err) => console.log("Erro ao registrar SW:", err));
     }
 
+    // Inicialização
     atualizarLista();
     atualizarMusicasOnline();
   </script>
