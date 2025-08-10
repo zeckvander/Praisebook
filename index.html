@@ -46,7 +46,7 @@
       border-color: #a66;
     }
     .add-button,
-    .save-button {
+    .cookie-button {
       background: none;
       border: none;
       cursor: pointer;
@@ -55,7 +55,7 @@
       transition: color 0.2s;
     }
     .add-button:hover,
-    .save-button:hover {
+    .cookie-button:hover {
       color: #a66;
     }
     .nav-buttons {
@@ -200,11 +200,11 @@
   </div>
 
   <div class="top-bar">
-    <div class="search-bar">
+    <div class="search-bar" id="search-bar-container">
       <input id="search-input" type="text" placeholder="Qual hino procura?" />
     </div>
     <button class="add-button" title="Adicionar Letra" onclick="adicionarLetra()">+</button>
-    <button class="save-button" title="Salvar HTML" onclick="salvarHtml()">💾</button>
+    <button class="cookie-button" title="Apagar Cache e Cookies" onclick="limparCacheECookies()">🍪</button>
   </div>
 
   <!-- Botões de navegação -->
@@ -236,8 +236,37 @@
   <div id="modalFundo" class="modal-backdrop" onclick="fecharModal('todos')"></div>
 
   <script>
-    /* todo o script JS igual ao seu original */
-    /* ... (mantive tudo igual, apenas o HTML mudou) */
+    // Função para limpar cache e cookies
+    async function limparCacheECookies() {
+      // Apaga cookies
+      document.cookie.split(";").forEach(function(c) {
+        document.cookie = c.replace(/^ +/, "")
+          .replace(/=.*/, "=;expires=" + new Date(0).toUTCString() + ";path=/");
+      });
+
+      // Apaga caches
+      if ('caches' in window) {
+        const nomesCaches = await caches.keys();
+        for (const nome of nomesCaches) {
+          await caches.delete(nome);
+        }
+      }
+
+      // Remove a barra de pesquisa antes de recarregar
+      localStorage.setItem("ocultarBarraPesquisa", "true");
+
+      // Recarrega a página
+      location.reload();
+    }
+
+    // Oculta a barra de pesquisa se marcado
+    if (localStorage.getItem("ocultarBarraPesquisa") === "true") {
+      document.addEventListener("DOMContentLoaded", () => {
+        const barra = document.getElementById("search-bar-container");
+        if (barra) barra.style.display = "none";
+        localStorage.removeItem("ocultarBarraPesquisa");
+      });
+    }
   </script>
 </body>
 </html>
