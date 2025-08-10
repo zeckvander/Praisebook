@@ -4,99 +4,98 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>PRAISEBOOK</title>
-  <link rel="manifest" href="/static/manifest.json" />
   <style>
     body {
-      font-family: Arial, sans-serif;
       margin: 0;
-      padding: 0;
+      font-family: Arial, sans-serif;
       background: #fff;
-      text-align: center;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
     }
 
-    /* Logo */
+    /* Logo no topo */
     .logo {
       width: 100%;
       height: auto;
       display: block;
     }
 
-    /* Botões principais */
-    .nav-buttons {
+    /* Área central */
+    .center-buttons {
+      flex: 1;
       display: flex;
       flex-direction: column;
+      justify-content: center;
       align-items: center;
-      gap: 15px;
-      margin: 20px 0;
+      gap: 20px;
     }
 
-    .nav-buttons a {
-      padding: 15px 25px;
-      background: #b30000;
-      color: #fff;
+    /* Estilo dos botões */
+    .btn {
+      padding: 15px 30px;
+      font-size: 1.2em;
+      background: #b22222; /* vermelho escuro */
+      color: white;
+      border: none;
       border-radius: 8px;
+      cursor: pointer;
       text-decoration: none;
-      font-weight: bold;
-      font-size: 18px;
-      width: 220px;
       text-align: center;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-      transition: 0.3s;
+      font-weight: bold;
+      min-width: 200px;
+    }
+    .btn:hover {
+      background: #8b0000; /* vermelho mais escuro no hover */
     }
 
-    .nav-buttons a:hover {
-      background: #ff0000;
-    }
-
-    /* Botão ⟳ */
-    .reload-button {
+    /* Botão de recarregar no canto inferior direito */
+    .refresh-btn {
       position: fixed;
       bottom: 20px;
       right: 20px;
-      background: #b30000;
-      color: #fff;
+      font-size: 1.5em;
+      background: #b22222;
+      color: white;
       border: none;
       border-radius: 50%;
-      font-size: 24px;
       width: 50px;
       height: 50px;
       cursor: pointer;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
     }
-
-    .reload-button:hover {
-      background: #ff0000;
+    .refresh-btn:hover {
+      background: #8b0000;
     }
   </style>
 </head>
 <body>
-  <!-- Logo -->
-  <img src="logo.png" alt="Logo" class="logo">
 
-  <!-- Botões principais -->
-  <div class="nav-buttons">
-    <a href="Coletanea_trad.html">Coletânea</a>
-    <a href="Avul.html">Avulsos</a>
-    <a href="Cias.html">Cias</a>
-    <a href="https://drive.google.com/drive/folders/1Ak-rNrraYknwBXpy13qHLbcF7-x3pZEv?usp=sharing" target="_blank">Drive oficial</a>
-    <a href="https://youtube.com/@igrejacristamaranataoficial?si=c2bLxCLeHQCdYCe8" target="_blank">YouTube oficial</a>
+  <!-- Logo -->
+  <img src="logo.png" alt="Logo" class="logo" />
+
+  <!-- Botões centrais -->
+  <div class="center-buttons">
+    <a href="Coletanea_trad.html" class="btn">Coletânea</a>
+    <a href="Avul.html" class="btn">Avulsos</a>
+    <a href="Cias.html" class="btn">Cias</a>
+    <a href="https://drive.google.com/drive/folders/1Ak-rNrraYknwBXpy13qHLbcF7-x3pZEv?usp=sharing" target="_blank" class="btn">Drive oficial</a>
+    <a href="https://youtube.com/@igrejacristamaranataoficial?si=c2bLxCLeHQCdYCe8" target="_blank" class="btn">YouTube oficial</a>
   </div>
 
-  <!-- Botão ⟳ -->
-  <button class="reload-button" onclick="clearCookiesAndCache()">⟳</button>
+  <!-- Botão de limpar cache/cookies e recarregar -->
+  <button class="refresh-btn" onclick="clearCookiesAndCache()">⟳</button>
 
   <script>
     function clearCookiesAndCache() {
-      // Limpar cookies
-      document.cookie.split(";").forEach(cookie => {
-        document.cookie = cookie
-          .replace(/^ +/, "")
-          .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+      // Apagar cookies
+      document.cookie.split(";").forEach(function(c) {
+        document.cookie = c.trim().split("=")[0] + 
+          '=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/';
       });
 
-      // Limpar cache
+      // Apagar cache
       if ('caches' in window) {
-        caches.keys().then(names => {
+        caches.keys().then(function(names) {
           for (let name of names) {
             caches.delete(name);
           }
@@ -107,5 +106,6 @@
       location.reload(true);
     }
   </script>
+
 </body>
 </html>
