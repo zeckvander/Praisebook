@@ -99,8 +99,8 @@
     .action-button:hover {
       color: #a66;
     }
-    /* Modal */
-    #modalLetra {
+    /* Estilos do Modal */
+    .modal {
       display: none;
       position: fixed;
       top: 10%;
@@ -110,13 +110,13 @@
       padding: 20px;
       border-radius: 10px;
       box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-      width: 80%;
-      max-width: 1200px;
+      width: 90%;
+      max-width: 800px;
       max-height: 80vh;
       overflow-y: auto;
       z-index: 1000;
     }
-    #modalFundo {
+    .modal-backdrop {
       display: none;
       position: fixed;
       top: 0;
@@ -126,7 +126,7 @@
       background: rgba(0, 0, 0, 0.5);
       z-index: 999;
     }
-    #modalLetra button.close-btn {
+    .modal button.close-btn {
       float: right;
       font-size: 24px;
       border: none;
@@ -134,16 +134,45 @@
       cursor: pointer;
       line-height: 1;
     }
-    #modalLetra h2 {
+    .modal h2 {
       margin-top: 0;
       margin-bottom: 1rem;
     }
-    #modalLetra pre {
+    .modal pre {
       white-space: pre-wrap;
       font-family: inherit;
       font-size: 16px;
       line-height: 1.5;
       color: #333;
+    }
+    /* Estilos para o Modal de Cifra */
+    #modalCifra pre {
+      font-family: monospace;
+      font-size: 14px;
+      line-height: 1.2;
+    }
+    .cifra-container {
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+    .cifra-container p {
+      margin: 0;
+      font-weight: bold;
+    }
+    .cifra-container button {
+      padding: 4px 8px;
+      font-size: 1em;
+      cursor: pointer;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      background-color: #f0f0f0;
+    }
+    .cifra {
+      color: #0066cc;
+      font-weight: bold;
     }
   </style>
 </head>
@@ -158,22 +187,32 @@
         id="search-input"
         type="text"
         placeholder="Qual hino procura?"
-        wfd-id="id0"
       />
     </div>
   </div>
 
   <div class="song-list" id="listaMusicas"></div>
 
-  <div id="modalLetra" style="display: none;">
-    <button class="close-btn" onclick="fecharModal()">×</button>
+  <div id="modalLetra" class="modal">
+    <button class="close-btn" onclick="fecharModal('modalLetra')">×</button>
     <h2 id="tituloLetra"></h2>
     <pre id="conteudoLetra"></pre>
   </div>
-  <div id="modalFundo" onclick="fecharModal()" style="display: none;"></div>
+  
+  <div id="modalCifra" class="modal">
+    <button class="close-btn" onclick="fecharModal('modalCifra')">×</button>
+    <h2 id="tituloCifra"></h2>
+    <div class="cifra-container">
+        <p>Tom: <span id="nota-principal" class="cifra"></span></p>
+        <button onclick="mudarTom(-1)">-</button>
+        <button onclick="mudarTom(1)">+</button>
+    </div>
+    <pre id="conteudoCifra"></pre>
+  </div>
+
+  <div id="modalFundo" class="modal-backdrop" onclick="fecharModal('todos')"></div>
 
   <script>
-    // Letras iniciais - você pode deixar vazio ou preencher algumas
     const letras = {
       "C/C - Aquilo Que Fui Não Sou Mais": `Aquilo que fui não sou mais,
 Nem sou tudo o que devo ser;
@@ -1128,14 +1167,57 @@ Tua vontade prevaleceu,
 Aleluia, glória ao Rei!
 Santo é o Deus forte!
 Santo é o Deus forte!`,
+    };
 
-      // ... Você pode preencher as outras letras aqui
+    const cifras = {
+      "C/C - Aquilo Que Fui Não Sou Mais": `  <span class="cifra" data-cifra="Em">Em</span>                    <span class="cifra" data-cifra="C">C</span>
+Aquilo que fui não sou mais
+                         <span class="cifra" data-cifra="B">B</span>
+Nem sou tudo o que devo ser
+                         <span class="cifra" data-cifra="Am">Am</span>
+Já sou pela graça o que sou
+                            <span class="cifra" data-cifra="C">C</span>
+E ao vê-lo estou certo que vou
+   <span class="cifra" data-cifra="B">B</span>                  <span class="cifra" data-cifra="Em">Em</span>   <span class="cifra" data-cifra="E">E</span>
+Na Glória de Cristo viver
+
+(CORO)
+   <span class="cifra" data-cifra="Am">Am</span>  <span class="cifra" data-cifra="D">D</span>      <span class="cifra" data-cifra="G">G</span>  <span class="cifra" data-cifra="C">C</span>
+Maranata, Maranata
+  <span class="cifra" data-cifra="F#°">F#°</span>          <span class="cifra" data-cifra="B7">B7</span>      <span class="cifra" data-cifra="Em">Em</span>  <span class="cifra" data-cifra="E">E</span>
+Em breve o Senhor voltará
+   <span class="cifra" data-cifra="Am">Am</span>  <span class="cifra" data-cifra="D">D</span>      <span class="cifra" data-cifra="G">G</span>  <span class="cifra" data-cifra="C">C</span>
+Maranata, Maranata
+   <span class="cifra" data-cifra="F#°">F#°</span>       <span class="cifra" data-cifra="B7">B7</span>       <span class="cifra" data-cifra="Em">Em</span>   <span class="cifra" data-cifra="Am">Am</span>   <span class="cifra" data-cifra="Em">Em</span>
+Ele mesmo virá nos buscar
+
+  <span class="cifra" data-cifra="Em">Em</span>                  <span class="cifra" data-cifra="C">C</span>
+Eu morto pensei que vivia
+                       <span class="cifra" data-cifra="B">B</span>
+Já vivo e com Cristo morri
+                        <span class="cifra" data-cifra="Am">Am</span>
+Para ele, estou ressuscitado
+                           <span class="cifra" data-cifra="C">C</span>
+Para o mundo, estou crucificado
+     <span class="cifra" data-cifra="B">B</span>                   <span class="cifra" data-cifra="Em">Em</span>  <span class="cifra" data-cifra="E">E</span>
+Minha vida em Jesus escondi
+
+  <span class="cifra" data-cifra="Em">Em</span>                <span class="cifra" data-cifra="C">C</span>
+Minh'alma gozando riquezas
+                          <span class="cifra" data-cifra="B">B</span>
+Tesouros que o mundo não dá
+                    <span class="cifra" data-cifra="Am">Am</span>
+Caminha na doce esperança
+                    <span class="cifra" data-cifra="C">C</span>
+Da Vida em eterna bonança
+  <span class="cifra" data-cifra="B">B</span>                    <span class="cifra" data-cifra="Em">Em</span>  <span class="cifra" data-cifra="E">E</span>
+Na glória onde Jesus está.`,
     };
 
     const lista = document.getElementById("listaMusicas");
     const input = document.getElementById("search-input");
+    const notasMusicais = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 
-    // Função para atualizar a lista visível conforme o objeto letras
     function atualizarLista() {
       lista.innerHTML = "";
       const filtro = input.value.toLowerCase();
@@ -1144,23 +1226,27 @@ Santo é o Deus forte!`,
         .forEach((titulo) => {
           const div = document.createElement("div");
           div.className = "song-item";
+
+          const temCifra = !!cifras[titulo];
+          const cifraButton = temCifra
+            ? `<button class="action-button" title="Cifra" onclick="abrirModalCifra('${titulo.replace(/'/g, "\\'")}')">🎸</button>`
+            : '';
+
           div.innerHTML = `
-          <div class="song-info">
-            <p class="song-title">${titulo}</p>
-          </div>
-          <div class="song-actions">
-            <button class="action-button" title="Text" onclick="abrirModalLetra('${titulo.replace(/'/g, "\\'")}')">T</button>
-            <button class="action-button" title="Chords">🎸</button>
-            <button class="action-button" title="Music">&#128221;</button>
-          </div>
-        `;
+            <div class="song-info">
+              <p class="song-title">${titulo}</p>
+            </div>
+            <div class="song-actions">
+              <button class="action-button" title="Letra" onclick="abrirModalLetra('${titulo.replace(/'/g, "\\'")}')">T</button>
+              ${cifraButton}
+            </div>
+          `;
           lista.appendChild(div);
         });
     }
 
     input.addEventListener("input", atualizarLista);
 
-    // Mostrar letra no modal
     function abrirModalLetra(titulo) {
       const modal = document.getElementById("modalLetra");
       const fundo = document.getElementById("modalFundo");
@@ -1174,12 +1260,75 @@ Santo é o Deus forte!`,
       fundo.style.display = "block";
     }
 
-    function fecharModal() {
-      document.getElementById("modalLetra").style.display = "none";
-      document.getElementById("modalFundo").style.display = "none";
+    function abrirModalCifra(titulo) {
+      const modal = document.getElementById("modalCifra");
+      const fundo = document.getElementById("modalFundo");
+      const tituloCifra = document.getElementById("tituloCifra");
+      const conteudoCifra = document.getElementById("conteudoCifra");
+      
+      const cifraHTML = cifras[titulo];
+
+      if (cifraHTML) {
+        tituloCifra.textContent = titulo;
+        conteudoCifra.innerHTML = cifraHTML;
+
+        // Encontra a nota base original para exibir no botão
+        const match = cifraHTML.match(/data-cifra="([A-G][#°\d]?)".*?\s/);
+        const notaBaseOriginal = match ? match[1].replace(/°\d/, '') : 'C';
+
+        document.getElementById('nota-principal').textContent = notaBaseOriginal;
+        
+        modal.style.display = "block";
+        fundo.style.display = "block";
+      } else {
+        alert("Cifra não disponível para este hino.");
+      }
     }
 
-    // Adicionar nova letra
+    function fecharModal(modalId) {
+      if (modalId === 'todos') {
+        document.getElementById("modalLetra").style.display = "none";
+        document.getElementById("modalCifra").style.display = "none";
+        document.getElementById("modalFundo").style.display = "none";
+      } else {
+        document.getElementById(modalId).style.display = "none";
+        document.getElementById("modalFundo").style.display = "none";
+      }
+    }
+
+    function mudarTom(direcao) {
+      const notaPrincipalSpan = document.getElementById('nota-principal');
+      const cifraSpans = document.querySelectorAll('#modalCifra [data-cifra]');
+
+      const notaAtual = notaPrincipalSpan.textContent.trim();
+      const indiceAtual = notasMusicais.indexOf(notaAtual);
+
+      if (indiceAtual === -1) {
+        console.error("Nota principal não encontrada no array de notas.");
+        return;
+      }
+
+      const novoIndice = (indiceAtual + direcao + notasMusicais.length) % notasMusicais.length;
+      const novaNota = notasMusicais[novoIndice];
+
+      notaPrincipalSpan.textContent = novaNota;
+
+      cifraSpans.forEach(elemento => {
+        const cifraComQualificador = elemento.getAttribute('data-cifra');
+        const notaPura = cifraComQualificador.match(/^[A-G]#?/)[0];
+        const qualificador = cifraComQualificador.replace(notaPura, '');
+
+        const indiceCifra = notasMusicais.indexOf(notaPura);
+        
+        if (indiceCifra !== -1) {
+            const novoIndiceCifra = (indiceCifra + direcao + notasMusicais.length) % notasMusicais.length;
+            const novaCifraPura = notasMusicais[novoIndiceCifra];
+            elemento.textContent = novaCifraPura + qualificador;
+        }
+      });
+    }
+
+    // Funções de adicionar/salvar (opcional)
     function adicionarLetra() {
       const tipo = prompt(
         "Deseja adicionar:\n1 - Letra\n2 - Cifra\n3 - Partitura"
@@ -1198,15 +1347,11 @@ Santo é o Deus forte!`,
       if (!titulo || !letra)
         return alert("Formato inválido. A primeira linha deve ser o título.");
 
-      // Adiciona ao objeto letras
       letras[titulo] = letra;
-
-      // Atualiza lista e alerta
       atualizarLista();
       alert(`Hino "${titulo}" adicionado com sucesso!`);
     }
 
-    // Função para salvar o HTML atualizado (igual a seu código original)
     function salvarHtml() {
       let letrasStringEntries = [];
       for (const [titulo, letra] of Object.entries(letras)) {
@@ -1228,19 +1373,15 @@ Santo é o Deus forte!`,
       a.click();
       URL.revokeObjectURL(url);
     }
-
-    // Atualizar músicas online (exemplo com URL externa)
+    
+    // Funções de atualização online
     async function atualizarMusicasOnline() {
-      const urlJSON = "https://seusite.com/musicas.json"; // Mude para sua URL real
-
+      const urlJSON = "https://seusite.com/musicas.json";
       try {
         const response = await fetch(urlJSON, { cache: "no-store" });
         if (!response.ok) throw new Error("Não foi possível buscar músicas online");
         const musicasOnline = await response.json();
-
-        // Merge letras com músicas online
         Object.assign(letras, musicasOnline);
-
         atualizarLista();
         console.log("Músicas atualizadas online.");
       } catch (e) {
@@ -1248,7 +1389,6 @@ Santo é o Deus forte!`,
       }
     }
 
-    // Registrar service worker
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker
         .register("sw.js")
@@ -1256,7 +1396,6 @@ Santo é o Deus forte!`,
         .catch((err) => console.log("Erro ao registrar SW:", err));
     }
 
-    // Inicializa lista e tenta atualizar online
     atualizarLista();
     atualizarMusicasOnline();
   </script>
