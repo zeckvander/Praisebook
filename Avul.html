@@ -99,7 +99,6 @@
     .action-button:hover {
       color: #a66;
     }
-    /* Estilos do Modal */
     .modal {
       display: none;
       position: fixed;
@@ -145,7 +144,6 @@
       line-height: 1.5;
       color: #333;
     }
-    /* Estilos para o Modal de Cifra */
     #modalCifra pre {
       font-family: monospace;
       font-size: 14px;
@@ -189,6 +187,8 @@
         placeholder="Qual hino procura?"
       />
     </div>
+    <button class="add-button" title="Adicionar Letra" onclick="adicionarLetra()">+</button>
+    <button class="save-button" title="Salvar HTML" onclick="salvarHtml()">💾</button>
   </div>
 
   <div class="song-list" id="listaMusicas"></div>
@@ -198,14 +198,14 @@
     <h2 id="tituloLetra"></h2>
     <pre id="conteudoLetra"></pre>
   </div>
-  
+
   <div id="modalCifra" class="modal">
     <button class="close-btn" onclick="fecharModal('modalCifra')">×</button>
     <h2 id="tituloCifra"></h2>
     <div class="cifra-container">
         <p>Tom: <span id="nota-principal" class="cifra"></span></p>
-        <button onclick="mudarTom(-1)">-</button>
-        <button onclick="mudarTom(1)">+</button>
+        <button id="btn-transpor-menos">-</button>
+        <button id="btn-transpor-mais">+</button>
     </div>
     <pre id="conteudoCifra"></pre>
   </div>
@@ -213,6 +213,81 @@
   <div id="modalFundo" class="modal-backdrop" onclick="fecharModal('todos')"></div>
 
   <script>
+    const lista = document.getElementById("listaMusicas");
+    const input = document.getElementById("search-input");
+
+    const notasMusicais = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+    const equivalentes = {
+        'Db': 'C#', 'Eb': 'D#', 'Fb': 'E',
+        'Gb': 'F#', 'Ab': 'G#', 'Bb': 'A#',
+        'Cb': 'B', 'E#': 'F', 'B#': 'C'
+    };
+
+    const sharpsToFlats = {
+        'C#': 'Db', 'D#': 'Eb', 'F#': 'Gb', 'G#': 'Ab', 'A#': 'Bb'
+    };
+
+    let tomAtual = '';
+
+    function normalizarNota(nota) {
+        return equivalentes[nota] || nota;
+    }
+
+    function aplicarRegras(nota) {
+      const regrasFinais = {
+        'E#': 'F',
+        'B#': 'C',
+        'Fb': 'E',
+        'Cb': 'B'
+      };
+      return regrasFinais[nota] || nota;
+    }
+    
+    function transporNota(notaComSufixo, semitons) {
+      // Separa o acorde de baixo, se houver
+      const partes = notaComSufixo.split('/');
+      const acordePrincipal = partes[0];
+      const notaDoBaixo = partes[1];
+
+      // Regex para capturar nota base, acidente e sufixo
+      const match = acordePrincipal.match(/^([A-G])(#|b)?(.*)/i);
+      if (!match) return notaComSufixo;
+
+      const [, notaBase, acidente, sufixo] = match;
+      const notaNormalizada = normalizarNota(notaBase.toUpperCase() + (acidente || ''));
+
+      let indexBase = notasMusicais.indexOf(notaNormalizada);
+      if (indexBase === -1) return notaComSufixo;
+
+      // Calcula o novo índice no array de notas
+      indexBase = (indexBase + semitons + notasMusicais.length) % notasMusicais.length;
+      let novaNotaBase = notasMusicais[indexBase];
+      
+      // Tenta manter a notação de bemol se a nota original tinha um
+      if (acidente === 'b') {
+          const bemolEquivalente = sharpsToFlats[novaNotaBase];
+          if (bemolEquivalente) {
+              novaNotaBase = bemolEquivalente;
+          }
+      }
+
+      novaNotaBase = aplicarRegras(novaNotaBase);
+
+      const novoAcordePrincipal = novaNotaBase + sufixo;
+
+      if (notaDoBaixo) {
+          const novaNotaDoBaixo = transporNota(notaDoBaixo, semitons);
+          return `${novoAcordePrincipal}/${novaNotaDoBaixo}`;
+      }
+
+      return novoAcordePrincipal;
+    }
+
+    function transporAcorde(acorde, semitons) {
+        return transporNota(acorde, semitons);
+    }
+
+
     const letras = {
       "C/C - Aquilo Que Fui Não Sou Mais": `Aquilo que fui não sou mais,
 Nem sou tudo o que devo ser;
@@ -228,7 +303,7 @@ Ele mesmo virá nos buscar.
 
 Eu morto pensei que vivia,
 Já vivo e com Cristo morri;
-Para ele, estou ressussitado,
+Para ele, estou ressuscitado,
 Para o mundo, estou Crucificado;
 Minha vida em Jesus escondi.
 
@@ -237,6 +312,11 @@ Tesouros que o mundo não dá,
 Caminha na doce esperança,
 Da Vida em eterna bonança,
 Na glória onde Jesus está.`,
+
+
+
+
+
     };
 
     const cifras = {
@@ -256,11 +336,11 @@ Na Glória de Cristo viver
 (CORO)
    <span data-cifra="Am">Am</span>  <span data-cifra="D">D</span>      <span data-cifra="G">G</span>  <span data-cifra="C">C</span>
 Maranata, Maranata
-  <span data-cifra="F#°">F#°</span>          <span data-cifra="B7">B7</span>      <span data-cifra="Em">Em</span>  <span data-cifra="E">E</span>
+  <span data-cifra="F#dim">F#dim</span>          <span data-cifra="B7">B7</span>      <span data-cifra="Em">Em</span>  <span data-cifra="E">E</span>
 Em breve o Senhor voltará
    <span data-cifra="Am">Am</span>  <span data-cifra="D">D</span>      <span data-cifra="G">G</span>  <span data-cifra="C">C</span>
 Maranata, Maranata
-   <span data-cifra="F#°">F#°</span>       <span data-cifra="B7">B7</span>       <span data-cifra="Em">Em</span>   <span data-cifra="Am">Am</span>   <span data-cifra="Em">Em</span>
+   <span data-cifra="F#dim">F#dim</span>       <span data-cifra="B7">B7</span>       <span data-cifra="Em">Em</span>   <span data-cifra="Am">Am</span>   <span data-cifra="Em">Em</span>
 Ele mesmo virá nos buscar
 
   <span data-cifra="Em">Em</span>                  <span data-cifra="C">C</span>
@@ -283,77 +363,49 @@ Caminha na doce esperança
                     <span data-cifra="C">C</span>
 Da Vida em eterna bonança
   <span data-cifra="B">B</span>                    <span data-cifra="Em">Em</span>  <span data-cifra="E">E</span>
-Na glória onde Jesus está.`
+Na glória onde Jesus está.
+
+
+
+<span data-cifra="CMaj7">CMaj7</span><br>
+<span data-cifra="CMaj9">CMaj9</span><br>
+<span data-cifra="Cm">Cm</span><br>
+<span data-cifra="Cm7">Cm7</span><br>
+<span data-cifra="Cm9">Cm9</span><br>
+<span data-cifra="Cdim">Cdim</span><br>
+<span data-cifra="Cdim7">Cdim7</span><br>
+<span data-cifra="Caug">Caug</span><br>
+<span data-cifra="Caug7">Caug7</span><br>
+<span data-cifra="C7">C7</span><br>
+<span data-cifra="C7sus4">C7sus4</span><br>
+<span data-cifra="C7b9">C7b9</span><br>
+<span data-cifra="C7#9">C7#9</span><br>
+<span data-cifra="C9">C9</span><br>
+<span data-cifra="Cmaj9">Cmaj9</span><br>
+<span data-cifra="Cm9">Cm9</span><br>
+<span data-cifra="C11">C11</span><br>
+<span data-cifra="Cmaj11">Cmaj11</span><br>
+<span data-cifra="Cm11">Cm11</span><br>
+<span data-cifra="C13">C13</span><br>
+<span data-cifra="Cmaj13">Cmaj13</span><br>
+<span data-cifra="Cm13">Cm13</span><br>
+<span data-cifra="Csus2">Csus2</span><br>
+<span data-cifra="Csus4">Csus4</span><br>
+<span data-cifra="Cadd9">Cadd9</span><br>
+<span data-cifra="C6">C6</span><br>
+<span data-cifra="Cm6">Cm6</span><br>
+<span data-cifra="C7#5">C7#5</span><br>
+<span data-cifra="C7b5">C7b5</span><br>
+<span data-cifra="C°">C°</span><br>
+<span data-cifra="Cø">Cø</span><br>
+`
+
+
+
       },
-    };
 
-    const lista = document.getElementById("listaMusicas");
-    const input = document.getElementById("search-input");
-    const notasMusicais = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-    const equivalentes = {
-        'Db': 'C#', 'Eb': 'D#', 'Fb': 'E',
-        'Gb': 'F#', 'Ab': 'G#', 'Bb': 'A#',
-        'Cb': 'B', 'E#': 'F', 'B#': 'C'
-    };
-    const sharpsToFlats = {
-        'C#': 'Db', 'D#': 'Eb', 'F#': 'Gb', 'G#': 'Ab', 'A#': 'Bb'
-    };
-
-    let tomAtual = '';
-
-    function normalizarNota(nota) {
-        return equivalentes[nota] || nota;
-    }
-
-    function aplicarRegras(nota) {
-      const regrasFinais = {
-        'E#': 'F',
-        'B#': 'C',
-        'Fb': 'E',
-        'Cb': 'B'
-      };
-      return regrasFinais[nota] || nota;
-    }
-    
-    function transporNota(notaComSufixo, semitons) {
-      const match = notaComSufixo.match(/^([A-G])(#|b)?(.*)/i);
-      if (!match) return notaComSufixo;
-
-      const [, notaBase, acidente, sufixo] = match;
-      const notaNormalizada = normalizarNota(notaBase.toUpperCase() + (acidente || ''));
-
-      let indexBase = notasMusicais.indexOf(notaNormalizada);
-      if (indexBase === -1) return notaComSufixo;
-
-      indexBase = (indexBase + semitons + notasMusicais.length) % notasMusicais.length;
-      let novaNotaBase = notasMusicais[indexBase];
       
-      if (acidente === 'b') {
-          const bemolEquivalente = sharpsToFlats[novaNotaBase];
-          if (bemolEquivalente) {
-              novaNotaBase = bemolEquivalente;
-          }
-      }
-
-      novaNotaBase = aplicarRegras(novaNotaBase);
-
-      return novaNotaBase + sufixo;
-    }
-
-    function transporAcorde(acorde, semitons) {
-        const partes = acorde.split('/');
-        const acordePrincipal = partes[0];
-        const notaDoBaixo = partes[1];
-
-        const novoAcordePrincipal = transporNota(acordePrincipal, semitons);
-
-        if (notaDoBaixo) {
-            const novaNotaDoBaixo = transporNota(notaDoBaixo, semitons);
-            return `${novoAcordePrincipal}/${novaNotaDoBaixo}`;
-        }
-
-        return novoAcordePrincipal;
-    }
+    };
 
     function atualizarLista() {
       lista.innerHTML = "";
@@ -370,14 +422,14 @@ Na glória onde Jesus está.`
             : '';
 
           div.innerHTML = `
-            <div class="song-info">
-              <p class="song-title">${titulo}</p>
-            </div>
-            <div class="song-actions">
-              <button class="action-button" title="Letra" onclick="abrirModalLetra('${titulo.replace(/'/g, "\\'")}')">T</button>
-              ${cifraButton}
-            </div>
-          `;
+          <div class="song-info">
+            <p class="song-title">${titulo}</p>
+          </div>
+          <div class="song-actions">
+            <button class="action-button" title="Letra" onclick="abrirModalLetra('${titulo.replace(/'/g, "\\'")}')">T</button>
+            ${cifraButton}
+          </div>
+        `;
           lista.appendChild(div);
         });
     }
@@ -403,13 +455,13 @@ Na glória onde Jesus está.`
       const tituloCifra = document.getElementById("tituloCifra");
       const conteudoCifra = document.getElementById("conteudoCifra");
       const notaPrincipalSpan = document.getElementById('nota-principal');
-      
+
       const musica = cifras[titulo];
 
       if (musica) {
         tituloCifra.textContent = titulo;
         conteudoCifra.innerHTML = musica.html;
-        
+
         tomAtual = musica.tomOriginal;
         notaPrincipalSpan.textContent = tomAtual;
 
@@ -431,6 +483,19 @@ Na glória onde Jesus está.`
       }
     }
 
+    document.addEventListener('DOMContentLoaded', () => {
+        const btnMenos = document.getElementById('btn-transpor-menos');
+        const btnMais = document.getElementById('btn-transpor-mais');
+
+        if (btnMenos) {
+            btnMenos.addEventListener('click', () => mudarTom(-1));
+        }
+
+        if (btnMais) {
+            btnMais.addEventListener('click', () => mudarTom(1));
+        }
+    });
+
     function mudarTom(direcao) {
       const notaPrincipalSpan = document.getElementById('nota-principal');
       const cifraSpans = document.querySelectorAll('#modalCifra [data-cifra]');
@@ -449,7 +514,7 @@ Na glória onde Jesus está.`
           console.error("Erro: Formato de tom original inválido.");
           return;
       }
-      const [, notaBaseOriginal, acidenteOriginal] = matchOriginal;
+      const [, notaBaseOriginal, acidenteOriginal, sufixoOriginal] = matchOriginal;
       const notaNormalizadaOriginal = normalizarNota(notaBaseOriginal.toUpperCase() + (acidenteOriginal || ''));
       const indexOriginal = notasMusicais.indexOf(notaNormalizadaOriginal);
 
@@ -459,7 +524,7 @@ Na glória onde Jesus está.`
           console.error("Erro: Formato de nota atual inválido.");
           return;
       }
-      const [, notaBaseAtual, acidenteAtual] = matchAtual;
+      const [, notaBaseAtual, acidenteAtual, sufixoAtual] = matchAtual;
       const notaNormalizadaAtual = normalizarNota(notaBaseAtual.toUpperCase() + (acidenteAtual || ''));
       let indexAtual = notasMusicais.indexOf(notaNormalizadaAtual);
 
@@ -478,7 +543,7 @@ Na glória onde Jesus está.`
         }
       }
 
-      const novoTom = novaNotaBase;
+      const novoTom = novaNotaBase + sufixoOriginal;
       notaPrincipalSpan.textContent = novoTom;
 
       let diferencaSemitons = novoIndice - indexOriginal;
@@ -494,7 +559,7 @@ Na glória onde Jesus está.`
           elemento.textContent = novaCifra;
       });
     }
-    
+
     function adicionarLetra() {
       const tipo = prompt(
         "Deseja adicionar:\n1 - Letra\n2 - Cifra\n3 - Partitura"
@@ -522,7 +587,7 @@ Na glória onde Jesus está.`
       let letrasStringEntries = [];
       for (const [titulo, letra] of Object.entries(letras)) {
         const letraEscapada = letra.replace(/`/g, "\\`");
-        letrasStringEntries.push(`"${titulo}": \`${letraEscapada}\``);
+        letrasStringEntries.push(`"${titulo}": \`${letras[titulo]}\``);
       }
       const letrasString = "const letras = {\n" + letrasStringEntries.join(",\n") + "\n};";
 
@@ -539,14 +604,17 @@ Na glória onde Jesus está.`
       a.click();
       URL.revokeObjectURL(url);
     }
-    
+
     async function atualizarMusicasOnline() {
       const urlJSON = "https://seusite.com/musicas.json";
+
       try {
         const response = await fetch(urlJSON, { cache: "no-store" });
         if (!response.ok) throw new Error("Não foi possível buscar músicas online");
         const musicasOnline = await response.json();
+
         Object.assign(letras, musicasOnline);
+
         atualizarLista();
         console.log("Músicas atualizadas online.");
       } catch (e) {
