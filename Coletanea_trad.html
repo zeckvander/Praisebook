@@ -99,7 +99,6 @@
     .action-button:hover {
       color: #a66;
     }
-    /* Modal */
     .modal {
       display: none;
       position: fixed;
@@ -145,7 +144,6 @@
       line-height: 1.5;
       color: #333;
     }
-    /* Estilos para o Modal de Cifra */
     #modalCifra pre {
       font-family: monospace;
       font-size: 14px;
@@ -225,7 +223,6 @@
         'Cb': 'B', 'E#': 'F', 'B#': 'C'
     };
 
-    // Novo objeto para mapear sustenidos para bemóis
     const sharpsToFlats = {
         'C#': 'Db', 'D#': 'Eb', 'F#': 'Gb', 'G#': 'Ab', 'A#': 'Bb'
     };
@@ -236,7 +233,6 @@
         return equivalentes[nota] || nota;
     }
 
-    // Nova função para aplicar as regras de notação final
     function aplicarRegras(nota) {
       const regrasFinais = {
         'E#': 'F',
@@ -268,7 +264,6 @@
           }
       }
 
-      // Aplica as regras de conversão enarmônica solicitadas pelo usuário
       novaNotaBase = aplicarRegras(novaNotaBase);
 
       return novaNotaBase + sufixo;
@@ -501,24 +496,25 @@ O sangue de Jesus, o sangue de Jesus
   <span data-cifra="D">D</span>                        <span data-cifra="G">G</span>
 Tem poder para o oprimido libertar`
       },
-      "3 - CLAMO A TI": {
-  tomOriginal: 'Dm',
-  html: `<span data-cifra="Dm">Dm</span> <span data-cifra="EØ">EØ</span> <span data-cifra="A7">A7</span> <span data-cifra="Dm">Dm</span>
-Clamo a ti, ó meu Senhor,
-<span data-cifra="Gm">Gm</span> <span data-cifra="C">C</span> <span data-cifra="F7M">F7M</span> <span data-cifra="Dm">Dm</span>
-Clamo a ti, meu Salvador,
+"3 - CLAMO A TI": {
+    tomOriginal: 'Dm',
+    ritmo: 'Básico',
+    html: `<span data-cifra="Dm">Dm</span> EØ <span data-cifra="A7">A7</span> <span data-cifra="Dm">Dm</span>
+ Clamo a |ti, ó meu Se|nhor,
+<span data-cifra="Gm">Gm</span> <span data-cifra="C">C</span> F7M <span data-cifra="Dm">Dm</span>
+Clamo a |ti, meu Salva|dor,
 <span data-cifra="Gm">Gm</span> <span data-cifra="C">C</span> <span data-cifra="F">F</span> <span data-cifra="Dm">Dm</span>
-Pelo teu sangue, que é vida,
+Pelo teu |sangue, que é |vida,
 <span data-cifra="Dm/C">Dm/C</span> <span data-cifra="Gm">Gm</span> <span data-cifra="A7">A7</span> <span data-cifra="Dm">Dm</span>
-Ó Bendito, vem me libertar.
+ Ó Ben|dito, |vem me liber|tar.
 <span data-cifra="C">C</span> <span data-cifra="C7">C7</span> <span data-cifra="F">F</span>
-Quando além do véu entrar,
+|Quando a|lém do |véu entrar,
 <span data-cifra="Gm">Gm</span> <span data-cifra="A7">A7</span> <span data-cifra="Dm">Dm</span>
-Irei te dar todo o meu ser,
-<span data-cifra="C">C</span> <span data-cifra="C7">C7</span> <span data-cifra="F">F</span> <span data-cifra="E">E</span> <span data-cifra="A">A</span> <span data-cifra="Em">Em</span>
-Em tua presença, te adorar, te bendizer.
+I|rei te dar to|do o meu ser,
+<span data-cifra="C">C</span> <span data-cifra="C7">C7</span> <span data-cifra="F">F</span> <span data-cifra="E">E</span> <span data-cifra="A">A</span>
+|<span data-cifra="Em">Em</span> tu|a pre|sença, te ado|rar, te bendi|zer.
 Repetir a primeira estrofe uma vez.`
-},
+  }
       "04 - Quando Te Prostrares": {
         tomOriginal: 'C',
         html: `  <span data-cifra="C">C</span>                  <span data-cifra="G">G</span>
@@ -664,7 +660,6 @@ Oh, meu Senhor.`
       }
     }
 
-    // Adiciona os event listeners para os botões de transposição
     document.addEventListener('DOMContentLoaded', () => {
         const btnMenos = document.getElementById('btn-transpor-menos');
         const btnMais = document.getElementById('btn-transpor-mais');
@@ -811,7 +806,6 @@ Oh, meu Senhor.`
         .catch((err) => console.log("Erro ao registrar SW:", err));
     }
 
-    // Inicialização
     atualizarLista();
     atualizarMusicasOnline();
   </script>
