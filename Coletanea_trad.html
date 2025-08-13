@@ -244,7 +244,13 @@
     }
     
     function transporNota(notaComSufixo, semitons) {
-      const match = notaComSufixo.match(/^([A-G])(#|b)?(.*)/i);
+      // Separa o acorde de baixo, se houver
+      const partes = notaComSufixo.split('/');
+      const acordePrincipal = partes[0];
+      const notaDoBaixo = partes[1];
+
+      // Regex para capturar nota base, acidente e sufixo
+      const match = acordePrincipal.match(/^([A-G])(#|b)?(.*)/i);
       if (!match) return notaComSufixo;
 
       const [, notaBase, acidente, sufixo] = match;
@@ -253,6 +259,7 @@
       let indexBase = notasMusicais.indexOf(notaNormalizada);
       if (indexBase === -1) return notaComSufixo;
 
+      // Calcula o novo índice no array de notas
       indexBase = (indexBase + semitons + notasMusicais.length) % notasMusicais.length;
       let novaNotaBase = notasMusicais[indexBase];
       
@@ -266,22 +273,18 @@
 
       novaNotaBase = aplicarRegras(novaNotaBase);
 
-      return novaNotaBase + sufixo;
+      const novoAcordePrincipal = novaNotaBase + sufixo;
+
+      if (notaDoBaixo) {
+          const novaNotaDoBaixo = transporNota(notaDoBaixo, semitons);
+          return `${novoAcordePrincipal}/${novaNotaDoBaixo}`;
+      }
+
+      return novoAcordePrincipal;
     }
 
     function transporAcorde(acorde, semitons) {
-        const partes = acorde.split('/');
-        const acordePrincipal = partes[0];
-        const notaDoBaixo = partes[1];
-
-        const novoAcordePrincipal = transporNota(acordePrincipal, semitons);
-
-        if (notaDoBaixo) {
-            const novaNotaDoBaixo = transporNota(notaDoBaixo, semitons);
-            return `${novoAcordePrincipal}/${novaNotaDoBaixo}`;
-        }
-
-        return novoAcordePrincipal;
+        return transporNota(acorde, semitons);
     }
 
 
