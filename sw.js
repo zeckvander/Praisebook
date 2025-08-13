@@ -1,15 +1,22 @@
 // Nome do cache (mude a versão para forçar atualização)
-const CACHE_NAME = "praisebook-v3"; // Versão atualizada para forçar a nova instalação
+const CACHE_NAME = "praisebook-v5";
 
 // Arquivos para cache
 const urlsToCache = [
   "./",
   "./index.html",
   "./manifest.json",
-  "./logo.png"
+  "./logo.png",
+  // Adicione aqui todos os arquivos que seu site usa, incluindo CSS e JS
+  // Exemplo:
+  // "./style.css",
+  // "./script.js",
+  // Se você tiver um arquivo JSON com as músicas, adicione-o aqui
+  // "https://seusite.com/musicas.json"
 ];
 
-// Instala e guarda no cache
+// O restante do código do Service Worker permanece o mesmo...
+
 self.addEventListener("install", (event) => {
   console.log("[Service Worker] Instalando...");
   event.waitUntil(
@@ -37,15 +44,12 @@ self.addEventListener("activate", (event) => {
 // Busca no cache primeiro, se não tenta a rede.
 // Se a rede falhar, retorna o index.html do cache para continuar a navegação.
 self.addEventListener("fetch", (event) => {
-  if (event.request.mode === 'navigate') { // Captura a navegação principal (recarregar página)
-    event.respondWith(
-      fetch(event.request).catch(() => caches.match("index.html"))
-    );
-  } else {
-    event.respondWith(
-      caches.match(event.request).then((response) => {
-        return response || fetch(event.request);
-      })
-    );
-  }
+  event.respondWith(
+    caches.match(event.request).then((response) => {
+      if (response) {
+        return response;
+      }
+      return fetch(event.request).catch(() => caches.match("index.html"));
+    })
+  );
 });
