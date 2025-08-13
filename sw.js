@@ -1,14 +1,12 @@
 // Nome do cache (mude a versão para forçar atualização)
-const CACHE_NAME = "praisebook-v2";
+const CACHE_NAME = "praisebook-v3"; // Versão atualizada para forçar a nova instalação
 
 // Arquivos para cache
 const urlsToCache = [
   "./",
   "./index.html",
   "./manifest.json",
-  "./logo.png",
-  "./offline.html"
-  // Adicione CSS, JS e imagens aqui também
+  "./logo.png"
 ];
 
 // Instala e guarda no cache
@@ -36,14 +34,18 @@ self.addEventListener("activate", (event) => {
   );
 });
 
-// Busca no cache primeiro, senão tenta buscar da rede
+// Busca no cache primeiro, se não tenta a rede.
+// Se a rede falhar, retorna o index.html do cache para continuar a navegação.
 self.addEventListener("fetch", (event) => {
-  event.respondWith(
-    caches.match(event.request).then((response) => {
-      return (
-        response ||
-        fetch(event.request).catch(() => caches.match("./offline.html"))
-      );
-    })
-  );
+  if (event.request.mode === 'navigate') { // Captura a navegação principal (recarregar página)
+    event.respondWith(
+      fetch(event.request).catch(() => caches.match("index.html"))
+    );
+  } else {
+    event.respondWith(
+      caches.match(event.request).then((response) => {
+        return response || fetch(event.request);
+      })
+    );
+  }
 });
